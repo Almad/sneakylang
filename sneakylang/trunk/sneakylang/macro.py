@@ -5,7 +5,7 @@ Expected to b
 """
 
 ###
-#Czechtile: WikiHezkyCesky [http://projects.almad.net/czechtile]
+# SneakyLang: Extensible WikiFramework
 #Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
 # and contributors, for complete list see
 # http://projects.almad.net/czechtile/wiki/Contributors

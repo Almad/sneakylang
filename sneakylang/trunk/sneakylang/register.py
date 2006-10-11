@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 
-""" Parser transforming input streamn do DOM
-"""
-
 ###
 # SneakyLang: Extensible WikiFramework
 #Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
-# and contributors, for complete list see
-# http://projects.almad.net/czechtile/wiki/Contributors
 #
 #This library is free software; you can redistribute it and/or
 #modify it under the terms of the GNU Lesser General Public
@@ -21,15 +16,18 @@
 #
 #You should have received a copy of the GNU Lesser General Public
 #License along with this library; if not, write to the Free Software
-#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ###
 
-class Error(Exception): pass
+class Register:
+    def __init__(self):
+        self.parsers_start = {}
 
-class MacroCallError(Error):
-    """ Error calling macro (i.e. bad arguments & co.) """
+    def add(self, parser):
+        for regexp in parser.parser_start:
+            if not regexp.startswith('^') or not regexp.endswith('$'):
+                raise ValueError, 'Regexp %s must start with ^ and ends with $ - others are not supported; should be, if You post an usecase' % regexp
+            if self.parsers_start.has_key(regexp):
+                raise ValueError, 'Register already contains parser %s starting on %s; %s nod added' % (nodes_start[regexp], regexp, parser)
 
-class ParserRollback(Error):
-    """ Parser has taken activity, but decided that it's not its turn.
-    Result should be that first char of chunk is treated as TextNode
-    and main parser is proceeding """
+            self.parsers_start[regexp] = parser

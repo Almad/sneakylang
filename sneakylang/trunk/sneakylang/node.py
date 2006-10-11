@@ -4,7 +4,7 @@
 """
 
 ###
-#Czechtile: WikiHezkyCesky [http://projects.almad.net/czechtile]
+# SneakyLang: Extensible WikiFramework
 #Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
 # and contributors, for complete list see
 # http://projects.almad.net/czechtile/wiki/Contributors
@@ -32,7 +32,8 @@ from expanders import *
 class Node:
     # if expand to desired format supported,
     # expander must be given
-    expanders = {
+    expanders = {# -*- coding: utf-8 -*-
+
         'xhtlm11' : None,
         'docbook5' : None
     }
@@ -91,16 +92,6 @@ class Document(Node):
 
 class MacroHandler(Node):
     """ Very special one, actual macro executer """
-
-class Paragraph(Node):
-    expanders = {
-        'xhtml11' : paragraphXhtmlExpander,
-        'docbook5' : paragraphDocbook5Expander
-    }
-
-class Strong(Node): pass
-
-class Heading(Node): pass
 
 ###
 # End of standard nodes
