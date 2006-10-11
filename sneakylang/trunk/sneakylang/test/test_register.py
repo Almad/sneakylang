@@ -45,6 +45,7 @@ class DummyMacro(Macro):
 class DummyParser(Parser):
     parser_start = ['^(####)$']
     macro = DummyMacro
+    name = 'dummy_macro' # remove when bug #2 will be solved
 
 class NotAllowedParserCreatingCollisionWithMacro(Parser):
     # already in register
@@ -71,6 +72,20 @@ class SimpleAddition(TestCase):
         #self.assertRaises(ValueError, lambda:self.r.add(NotAllowedParser))
         self.assertRaises(ValueError, lambda:self.r.add(NotAllowedParserHavingBadRegexp))
         self.assertRaises(ValueError, lambda:self.r.add(NotAllowedParserHavingBadRegexp2))
+
+class TestRetrieving(TestCase):
+    def setUp(self):
+        self.r = Register()
+        self.r.add(DummyParser)
+
+    def testGet(self):
+        self.assertEquals(DummyParser, self.r.get_parser('^(####)$'))
+
+    def testBadGet(self):
+        self.assertRaises(ValueError, lambda:self.r.get_parser('SomeBadRegullarExpressions'))
+
+    def testGet(self):
+        self.assertEquals(DummyMacro, self.r.get_macro('dummy_macro'))
 
 
 if __name__ == "__main__":

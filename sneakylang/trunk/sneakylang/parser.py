@@ -30,28 +30,22 @@ import macro
 
 from classregistry import registry
 
-class Parser:
-    """ All parsers should derive from this class. """
+#class ResolverParser(Parser):
+#    """ Special 'main parser'.
+#    Resolving other parsers and return them. If unsuccessfull,
+#    creating TextNodes and appending them to tree """
+#
+#    def __init__(self, stream):
+#        self.stream = stream
+#
+#    def parse(self, register=None):
+#        pass
 
-    def __new__(cls):
-        # add class to registry
-        if not cls.__bases__ == (object,):
-            registry('parser').addClass(cls)
-
-class ResolverParser(Parser):
-    """ Special 'main parser'.
-    Resolving other parsers and return them. If unsuccessfull,
-    creating TextNodes and appending them to tree """
-
-    def __init__(self, stream):
-        self.stream = stream
-
-    def parse(self, register=None):
-        pass
-
-class DomParser(Parser):
+class Parser(object):
+    """ All parsers should derivate from this class """
     start = []
     macro = None
+    name = None # should be same as macro.name
 
     def __init__(self, stream, register, chunk):
         """ Parse is taking activity in DOM dom because of chunk resolved """
@@ -93,7 +87,7 @@ class DomParser(Parser):
         self.domTree = self.callMacro()
         return self.domTree
 
-class Document(DomParser):
+class Document(Parser):
     start = None
     macro = macro.Document
 
