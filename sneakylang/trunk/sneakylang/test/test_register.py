@@ -86,6 +86,9 @@ class TestRetrieving(TestCase):
 
     def testGet(self):
         self.assertEquals(DummyMacro, self.r.get_macro('dummy_macro'))
+        
+    def testResolver(self):
+        self.assertEquals(isinstance(self.r.resolve_parser('####'), DummyParser), True)
 
 
 if __name__ == "__main__":

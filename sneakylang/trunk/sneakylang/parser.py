@@ -7,7 +7,7 @@
 # SneakyLang: Extensible WikiFramework
 #Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
 # and contributors, for complete list see
-# http://projects.almad.net/czechtile/wiki/Contributors
+# http://projects.almad.net/c~/projects/sneakylang/sneakylang/testzechtile/wiki/Contributors
 #
 #This library is free software; you can redistribute it and/or
 #modify it under the terms of the GNU Lesser General Public
@@ -58,7 +58,6 @@ class Parser(object):
         self.args = None
         self.init()
         self.stream = stream
-        self.parse()
 
     def init(self):
         """ Something to do after init? ,) """
@@ -96,3 +95,23 @@ class Document(Parser):
 
     def resolveContent(self):
         self.args = self.stream
+
+        
+def parse(stream, register):
+    nodes = []
+    p = register.resolve_parser(stream)
+    if p is not None:
+        stream = stream[len(p.chunk):]
+        n = p.parse()
+        nodes.append(n)
+    else:
+        tn = TextNode()
+        while register.resolve_parser(stream, register) is None:
+            if len(stream) == 0:
+                break
+            tn.content = ''.join([tn.content, stream[0:1]])
+            stream = stream[1:]
+        nodes.append(tn)
+    if len(stream) > 0:
+        nodes.append(parse(stream, register))
+    return nodes

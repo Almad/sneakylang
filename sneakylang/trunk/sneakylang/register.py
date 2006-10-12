@@ -19,6 +19,8 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ###
 
+from re import compile
+
 from classregistry import registry
 
 class Register:
@@ -60,3 +62,28 @@ class Register:
             return registry(str(self)).getClass(self.parser_name_map[name]).macro
         except KeyError:
             raise ValueError, 'No macro parser registered under name %s in registry' % name
+    
+#    def _get_most_matching_parser(self, regexps):
+#        match = None
+#        for regexp in regexps:
+#            if compile(regexp).match(stream[0:pos]):
+#                if match is None:
+#                    return self._get_most_matching_parser(stream, regexps, pos+1)
+#                match = (self.parsers_start[regexp], stream[0:pos])
+#        return match
+    
+    def _most_matching(self, matching):
+        most = None
+        length = 0
+        for m in matching:
+            if len(m.string[m.start():m.end()]) > length:
+                most = m
+                length = len(m.string[m.start():m.end()])
+        return (self.parsers_start[''.join([most.re.pattern, '$'])], m.string[m.start():m.end()])
+    
+    def resolve_parser(self, stream):
+        matching = [compile(p[:-1]).match(stream) for p in self.parsers_start if compile(p[:-1]).match(stream)]
+        if len(matching) == 0:
+            return None
+        parser, chunk = self._most_matching(matching)
+        return parser(stream, self, chunk)
