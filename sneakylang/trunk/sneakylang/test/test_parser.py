@@ -40,7 +40,7 @@ from sneakylang.register import Register
 
 class DummyMacro(Macro):
     name = 'dummy_macro'
-    
+
     def expand(self, *args):
         return DummyNode(None)
 
@@ -52,18 +52,24 @@ class DummyParser(Parser):
     macro = DummyMacro
     name = 'dummy_macro' # remove when bug #2 will be solved
 
+class DummyParserTwo(Parser):
+    parser_start = ['^(#####)$']
+    macro = DummyMacro
+    name = 'dummy_macro' # remove when bug #2 will be solved
+
 class TestParserCapabilities(TestCase):
 
     def testSameName(self):
         self.assertEquals(DummyParser.name, DummyMacro.name)
-    
-    def testParserResolver(self):
+
+    def testParserTransform(self):
         r = Register()
         r.add(DummyParser)
         res = parse('####',r)
         self.assertEquals(len(res), 1)
         self.assertEquals(isinstance(parse('####',r)[0], DummyNode), True)
-    
-    
+
+
+
 if __name__ == "__main__":
     main()

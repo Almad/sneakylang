@@ -86,9 +86,21 @@ class TestRetrieving(TestCase):
 
     def testGet(self):
         self.assertEquals(DummyMacro, self.r.get_macro('dummy_macro'))
-        
+
     def testResolver(self):
         self.assertEquals(isinstance(self.r.resolve_parser('####'), DummyParser), True)
+
+    def testResolverConflicting(self):
+        class DummyMacroTwo(Macro):
+            name = 'dummy_macro_two'
+        class DummyParserTwo(Parser):
+            parser_start = ['^(#####)$']
+            macro = DummyMacroTwo
+            name = 'dummy_macro_two' # remove when bug #2 will be solved
+
+        self.r.add(DummyParserTwo)
+        self.assertEquals(isinstance(self.r.resolve_parser('#####'), DummyParserTwo), True)
+
 
 
 if __name__ == "__main__":
