@@ -28,6 +28,7 @@ from os.path import join
 import sys
 sys.path.insert(0, join(pardir, pardir))
 import logging
+import re
 
 from unittest import main,TestCase
 
@@ -41,26 +42,35 @@ from sneakylang.register import Register
 ### Define basic grammar
 # This wiki have only paragraps (\n\n) and headings (=)
 
+class ParagraphNode(Node): pass
+
 class ParagraphMacro(Macro):
     name = 'odstavec'
     help = '((odstavec text odstavce))'
 
-    def expand(self, level, content):
-        from parser import DomParser
-        p = Paragraph()
-        par = DomParser(register=self.macrosAllowed())
-        p.append()
+    def expand(self, content):
+        p = ParagraphNode()
+        nodes = parse(content, self.register)
         return p
 
 class Paragraph(Parser):
     start = ['^(\n){2}$']
     macro = ParagraphMacro
+    end = '^(\n){2}$'
 
-    def callMacro(self, stream):
-        content = stream[0:re.match('(\n){2}').end()]
-        stream = stream[0, len(content)-2]
-        macro = Paragraph()
-        macro.expand(self.dom, content)
+    def resolveContent(self):
+        self.stream = self.stream[len(self.chunk):]
+        end = re.match(self.__class__.end, self.stream)
+        if end:
+            self.content = self.stream[0:end.end()]
+            self.stream = self.stream[len(self.content):]
+        else:
+            self.content = self.stream
+            self.stream = ''
+
+    def callMacro(self):
+        macro = self.__class__.macro(self.register)
+        macro.expand(self.content)
 
 ### End of definition
 
@@ -72,6 +82,7 @@ class TestParsing(TestCase):
 
     def testPara(self):
         s = '''\n\nParagraph'''
+        o = parse(s, self.reg)
 
 
 

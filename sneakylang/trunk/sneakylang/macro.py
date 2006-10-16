@@ -32,6 +32,10 @@ class Macro:
     """ All macros should derive from this class """
     name = None # define macro name
     help = """<this macro haven't specified usage example>"""
+    macrosAllowed = []
+
+    def __init__(self, register):
+        self.register = register
 
     def expand(self, *args, **kwargs):
         """ Macro with arguments resolved; macro should expand themselves to Nodes and append to DOM """

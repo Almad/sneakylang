@@ -27,6 +27,7 @@
 from err import ParserRollback
 
 import macro
+from node import TextNode
 
 from classregistry import registry
 
@@ -96,7 +97,7 @@ class Document(Parser):
     def resolveContent(self):
         self.args = self.stream
 
-        
+
 def parse(stream, register):
     nodes = []
     p = register.resolve_parser(stream)
@@ -106,7 +107,7 @@ def parse(stream, register):
         nodes.append(n)
     else:
         tn = TextNode()
-        while register.resolve_parser(stream, register) is None:
+        while register.resolve_parser(stream) is None:
             if len(stream) == 0:
                 break
             tn.content = ''.join([tn.content, stream[0:1]])

@@ -38,7 +38,7 @@ class Node:
         'docbook5' : None
     }
 
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         self.parent = parent
         self.children = []
         self.actualTextContent = None # actual TextNode to fill data in
