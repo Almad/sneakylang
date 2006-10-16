@@ -43,21 +43,21 @@ class DummyMacro(Macro):
     name = 'dummy_macro'
 
 class DummyParser(Parser):
-    parser_start = ['^(####)$']
+    start = ['^(####)$']
     macro = DummyMacro
     name = 'dummy_macro' # remove when bug #2 will be solved
 
 class NotAllowedParserCreatingCollisionWithMacro(Parser):
     # already in register
-    parser_start = ['^(\(){2}$']
+    start = ['^(\(){2}$']
 
 class NotAllowedParserHavingBadRegexp(Parser):
     # already in register
-    parser_start = ['(\(){2}$']
+    start = ['(\(){2}$']
 
 class NotAllowedParserHavingBadRegexp2(Parser):
     # already in register
-    parser_start = ['^(\(){2}']
+    start = ['^(\(){2}']
 
 class SimpleAddition(TestCase):
     def setUp(self):
@@ -94,7 +94,7 @@ class TestRetrieving(TestCase):
         class DummyMacroTwo(Macro):
             name = 'dummy_macro_two'
         class DummyParserTwo(Parser):
-            parser_start = ['^(#####)$']
+            start = ['^(#####)$']
             macro = DummyMacroTwo
             name = 'dummy_macro_two' # remove when bug #2 will be solved
 

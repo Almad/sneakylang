@@ -52,7 +52,7 @@ class ParagraphMacro(Macro):
         p.append()
         return p
 
-class Paragraph(DomParser):
+class Paragraph(Parser):
     start = ['^(\n){2}$']
     macro = ParagraphMacro
 
@@ -66,7 +66,13 @@ class Paragraph(DomParser):
 
 
 class TestParsing(TestCase):
-    pass
+    def setUp(self):
+        self.reg = Register()
+        self.reg.add(Paragraph)
+
+    def testPara(self):
+        s = '''\n\nParagraph'''
+
 
 
 if __name__ == "__main__":

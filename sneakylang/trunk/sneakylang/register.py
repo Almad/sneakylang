@@ -30,7 +30,7 @@ class Register:
         self.macro_map = {}
 
     def _addParser(self, parser):
-        for regexp in parser.parser_start:
+        for regexp in parser.start:
             if not regexp.startswith('^') or not regexp.endswith('$'):
                 raise ValueError, 'Regexp %s must start with ^ and ends with $ - others are not supported; should be, if You post an usecase' % regexp
             if self.parsers_start.has_key(regexp):
@@ -62,7 +62,7 @@ class Register:
             return registry(str(self)).getClass(self.parser_name_map[name]).macro
         except KeyError:
             raise ValueError, 'No macro parser registered under name %s in registry' % name
-    
+
 #    def _get_most_matching_parser(self, regexps):
 #        match = None
 #        for regexp in regexps:
@@ -71,7 +71,7 @@ class Register:
 #                    return self._get_most_matching_parser(stream, regexps, pos+1)
 #                match = (self.parsers_start[regexp], stream[0:pos])
 #        return match
-    
+
     def _most_matching(self, matching):
         most = None
         length = 0
@@ -80,7 +80,7 @@ class Register:
                 most = m
                 length = len(m.string[m.start():m.end()])
         return (self.parsers_start[''.join([most.re.pattern, '$'])], m.string[m.start():m.end()])
-    
+
     def resolve_parser(self, stream):
         matching = [compile(p[:-1]).match(stream) for p in self.parsers_start if compile(p[:-1]).match(stream)]
         if len(matching) == 0:
