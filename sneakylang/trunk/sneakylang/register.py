@@ -21,22 +21,28 @@
 
 from re import compile
 
-from classregistry import registry
+from classregistry import registry, MasterRegistry, ClassRegistry
 
 class Register:
-    def __init__(self):
+    def __init__(self, parsersList=None):
         self.parsers_start = {}
         self.parser_name_map = {}
         self.macro_map = {}
+        self._emptyRegistry()
+        if parsersList is not None:
+            self.addParsers(parsersList)
+
+    def _emptyRegistry(self):
+        MasterRegistry.registries[repr(self)] = ClassRegistry(repr(self))
 
     def _addParser(self, parser):
         for regexp in parser.start:
             if not regexp.startswith('^') or not regexp.endswith('$'):
                 raise ValueError, 'Regexp %s must start with ^ and ends with $ - others are not supported; should be, if You post an usecase' % regexp
             if self.parsers_start.has_key(regexp):
-                raise ValueError, 'Register already contains parser %s starting on %s; %s nod added' % (nodes_start[regexp], regexp, parser)
+                raise ValueError, 'Register already contains parser %s starting on %s; %s nod added' % (self.parsers_start[regexp], regexp, parser)
 
-            registry(str(self)).addClass(parser)
+            registry(repr(self)).addClass(parser)
             self.parser_name_map[parser.name] = parser.__name__
             self.parsers_start[regexp] = parser
 
@@ -44,6 +50,10 @@ class Register:
         if self.macro_map.has_key(parser.macro.name):
             raise ValueError, 'Macro %s already added under name %s' % (self.macro_map[parser.macro.name], parser.macro.name)
         self.macro_map[parser.macro.name] = parser.macro
+
+    def addParsers(self, parsersList):
+        for p in parsersList:
+            self.add(p)
 
     def add(self, parser):
         self._addParser(parser)
@@ -59,7 +69,7 @@ class Register:
 
     def get_macro(self, name):
         try:
-            return registry(str(self)).getClass(self.parser_name_map[name]).macro
+            return registry(repr(self)).getClass(self.parser_name_map[name]).macro
         except KeyError:
             raise ValueError, 'No macro parser registered under name %s in registry' % name
 

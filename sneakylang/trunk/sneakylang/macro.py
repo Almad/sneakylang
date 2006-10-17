@@ -27,57 +27,28 @@ Expected to b
 
 from err import *
 import node
+from register import Register
 
 class Macro:
     """ All macros should derive from this class """
     name = None # define macro name
     help = """<this macro haven't specified usage example>"""
-    macrosAllowed = []
+    parsersAllowed = None
 
     def __init__(self, register):
+#        if self.__class__.parsersAllowed is None:
         self.register = register
+#        else:
+#            self.register = Register(self.__class__.parsersAllowed)
 
     def expand(self, *args, **kwargs):
         """ Macro with arguments resolved; macro should expand themselves to Nodes and append to DOM """
         raise NotImplementedError
 
 
-class Heading(Macro):
-    name = 'nadpis'
-    help = '((nadpis 1 Nadpis první úrovně)) ((nadpis 2 Nadpis druhé úrovně))'
-
-    def _getHeading(self):
-        n = node.Heading()
-        t = TextNode()
-        t.content = ''.join([''.join([word, ' ']) for word in args])
-        n.append(t)
-        return n
-
-    def expand(self, dom, level, content):
-        s = Section()
-        s.append(self._getHeading())
-        return s
-
-class Strong(Macro):
-    name = 'silne'
-    help = '((silne zesileny text))'
-
-class Paragraph(Macro):
-    name = 'odstavec'
-    help = '((odstavec text odstavce))'
-    macrosAllowed = [Strong]
-
-    def expand(self, level, content):
-        from parser import DomParser
-        p = Paragraph()
-        par = DomParser(register=self.macrosAllowed())
-        p.append()
-        return p
-
 class Document(Macro):
     name = 'document'
     help = '<this macro should never be used>'
-    macrosAllowed = [Heading, Paragraph]
 
     def expand(self, text):
         from parser import DomParser

@@ -39,6 +39,8 @@ from sneakylang.macro import Macro
 from sneakylang.node import Node
 from sneakylang.parser import Parser
 
+from sneakylang.classregistry import registry
+
 class DummyMacro(Macro):
     name = 'dummy_macro'
 
@@ -59,6 +61,19 @@ class NotAllowedParserHavingBadRegexp2(Parser):
     # already in register
     start = ['^(\(){2}']
 
+class TestDistinctHolders(TestCase):
+    def testDistinctHoldersAndNoDuplicatesInOne(self):
+        r1 = Register()
+        r2 = Register()
+
+        r1.add(DummyParser)
+        self.assertRaises(ValueError, lambda:r1.add(DummyParser))
+        self.assertRaises(ValueError, lambda:registry(repr(r1)).addClass(DummyParser))
+
+        r2.add(DummyParser)
+        self.assertRaises(ValueError, lambda:r2.add(DummyParser))
+        self.assertRaises(ValueError, lambda:registry(repr(r2)).addClass(DummyParser))
+
 class SimpleAddition(TestCase):
     def setUp(self):
         self.r = Register()
@@ -68,8 +83,6 @@ class SimpleAddition(TestCase):
         self.assertEquals(self.r.parsers_start['^(####)$'], DummyParser)
 
     def testBadAdd(self):
-        # Think about it, is macro parser really neccessary?
-        #self.assertRaises(ValueError, lambda:self.r.add(NotAllowedParser))
         self.assertRaises(ValueError, lambda:self.r.add(NotAllowedParserHavingBadRegexp))
         self.assertRaises(ValueError, lambda:self.r.add(NotAllowedParserHavingBadRegexp2))
 
@@ -99,9 +112,13 @@ class TestRetrieving(TestCase):
             name = 'dummy_macro_two' # remove when bug #2 will be solved
 
         self.r.add(DummyParserTwo)
+        self.assertEquals(isinstance(self.r.resolve_parser('#### 123'), DummyParser), True)
         self.assertEquals(isinstance(self.r.resolve_parser('#####'), DummyParserTwo), True)
 
-
+class TestInstanceCreating(TestCase):
+    def testReg(self):
+        r = Register([DummyParser])
+        self.assertEquals(DummyParser, r.get_parser('^(####)$'))
 
 if __name__ == "__main__":
     main()

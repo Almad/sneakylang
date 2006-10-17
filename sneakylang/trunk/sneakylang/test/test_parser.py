@@ -31,12 +31,12 @@ import logging
 
 from unittest import main,TestCase
 
-logging.basicConfig(level=logging.DEBUG)
-
 from sneakylang.macro import Macro
 from sneakylang.node import Node
 from sneakylang.parser import *
 from sneakylang.register import Register
+
+#logging.basicConfig(level=logging.DEBUG)
 
 class DummyMacro(Macro):
     name = 'dummy_macro'
@@ -48,12 +48,12 @@ class DummyNode(Node):
     name = 'dummy node'
 
 class DummyParser(Parser):
-    parser_start = ['^(####)$']
+    start = ['^(####)$']
     macro = DummyMacro
     name = 'dummy_macro' # remove when bug #2 will be solved
 
 class DummyParserTwo(Parser):
-    parser_start = ['^(#####)$']
+    start = ['^(#####)$']
     macro = DummyMacro
     name = 'dummy_macro' # remove when bug #2 will be solved
 
@@ -67,9 +67,8 @@ class TestParserCapabilities(TestCase):
         r.add(DummyParser)
         res = parse('####',r)
         self.assertEquals(len(res), 1)
+        # print parse('####',r)[0]
         self.assertEquals(isinstance(parse('####',r)[0], DummyNode), True)
-
-
 
 if __name__ == "__main__":
     main()
