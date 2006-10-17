@@ -29,7 +29,7 @@ import re
 
 from unittest import main,TestCase
 
-# logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 from sneakylang.err import ParserRollback
 from sneakylang.macro import Macro
@@ -125,6 +125,25 @@ class TestParsing(TestCase):
         o = parse(s, self.reg)
         self.assertEquals(len(o), 1)
         self.assertEquals(isinstance(o[0], ParagraphNode), True)
+        self.assertEquals(isinstance(o[0].children[0], TextNode), True)
+        self.assertEquals(o[0].children[0].content, 'Paragraph')
+
+    def testSimplestParaWithEnd(self):
+        s = '''\n\nParagraph\n\n'''
+        o = parse(s, self.reg)
+        self.assertEquals(len(o), 1)
+        self.assertEquals(isinstance(o[0], ParagraphNode), True)
+        self.assertEquals(isinstance(o[0].children[0], TextNode), True)
+        self.assertEquals(o[0].children[0].content, 'Paragraph')
+
+    def testSimplestParaWithNoStrong(self):
+        s = '''\n\nParagraph "" not strong, sorry ,)'''
+        o = parse(s, self.reg)
+        self.assertEquals(len(o), 1)
+        self.assertEquals(isinstance(o[0], ParagraphNode), True)
+        self.assertEquals(isinstance(o[0].children[0], TextNode), True)
+        self.assertEquals(o[0].children[0].content, 'Paragraph ')
+        self.assertEquals(o[0].children[1].content, '"" not strong, sorry ,)')
 
     def testParaWithStrong(self):
         s = '''\n\nParagraph ""strong""'''

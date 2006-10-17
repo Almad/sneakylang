@@ -108,7 +108,6 @@ def parse(stream, register):
         parser = register.resolve_parser(stream)
         if parser is not None:
             logging.debug('Resolved parser %s' % parser)
-            stream = stream[len(parser.chunk):]
             try:
                 res = parser.parse()
                 logging.debug('Appending %s' % res)
@@ -116,6 +115,7 @@ def parse(stream, register):
                 stream = parser.stream
             except ParserRollback:
                 node, stream = _getTextNode(stream, register, True)
+                nodes.append(node)
         else:
             logging.debug('Not resolved, adding TextNode')
             node, stream = _getTextNode(stream, register)
