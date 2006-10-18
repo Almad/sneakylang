@@ -91,6 +91,8 @@ class TestRetrieving(TestCase):
         self.r = Register()
         self.r.add(DummyParser)
 
+        self.map = {DummyParser:Register()}
+
     def testGet(self):
         self.assertEquals(DummyParser, self.r.get_parser('^(####)$'))
 
@@ -101,9 +103,10 @@ class TestRetrieving(TestCase):
         self.assertEquals(DummyMacro, self.r.get_macro('dummy_macro'))
 
     def testResolver(self):
-        self.assertEquals(isinstance(self.r.resolve_parser('####'), DummyParser), True)
+        self.assertEquals(isinstance(self.r.resolve_parser('####', self.map), DummyParser), True)
 
     def testResolverConflicting(self):
+
         class DummyMacroTwo(Macro):
             name = 'dummy_macro_two'
         class DummyParserTwo(Parser):
@@ -112,13 +115,15 @@ class TestRetrieving(TestCase):
             name = 'dummy_macro_two' # remove when bug #2 will be solved
 
         self.r.add(DummyParserTwo)
-        self.assertEquals(isinstance(self.r.resolve_parser('#### 123'), DummyParser), True)
-        self.assertEquals(isinstance(self.r.resolve_parser('#####'), DummyParserTwo), True)
+        self.map[DummyParserTwo] = Register()
+        self.assertEquals(isinstance(self.r.resolve_parser('#### 123', self.map), DummyParser), True)
+        self.assertEquals(isinstance(self.r.resolve_parser('#####', self.map), DummyParserTwo), True)
 
 class TestInstanceCreating(TestCase):
     def testReg(self):
         r = Register([DummyParser])
         self.assertEquals(DummyParser, r.get_parser('^(####)$'))
+
 
 if __name__ == "__main__":
     main()

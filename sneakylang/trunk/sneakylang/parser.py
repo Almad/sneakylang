@@ -30,6 +30,7 @@ from err import ParserRollback
 
 import macro
 from node import TextNode
+from register import Register
 
 from classregistry import registry
 
@@ -39,17 +40,14 @@ class Parser(object):
     macro = None
     name = None # should be same as macro.name
 
-    def __init__(self, stream, register, chunk):
+    def __init__(self, stream, register, chunk, map):
         """ Parse is taking activity in DOM dom because of chunk resolved """
         self.chunk = chunk
-        if register is None:
-            #TODO: some default register
-            self.register = None
-        else:
-            self.register = register
+        self.register = register
+        self.registerMap = map
         self.args = None
         self.init()
-        self.stream = stream
+        self.stream = stream[len(chunk):]
 
     def init(self):
         """ Something to do after init? ,) """
@@ -63,7 +61,7 @@ class Parser(object):
 
     def callMacro(self):
         """ Do proper call to related macro(s) """
-        return self.macro(self.register).expand(self.args)
+        return self.macro(self.register, self.registerMap).expand(self.args)
 
     def resolveContent(self):
         """ Resolve end of macro and (if needed) mark content as self.args """
@@ -88,24 +86,25 @@ class Document(Parser):
     def resolveContent(self):
         self.args = self.stream
 
-def _getTextNode(stream, register, forceFirstChar=False):
+def _getTextNode(stream, register, registerMap, forceFirstChar=False):
     tn = TextNode()
 
     if forceFirstChar is True:
         tn.content = ''.join([tn.content, stream[0:1]])
         stream = stream[1:]
 
-    while register.resolve_parser(stream) is None:
+    while register.resolve_parser(stream, registerMap) is None:
         if len(stream) == 0:
             break
         tn.content = ''.join([tn.content, stream[0:1]])
         stream = stream[1:]
     return (tn, stream)
 
-def parse(stream, register):
+def parse(stream, registerMap):
+    register = Register([p for p in registerMap])
     nodes = []
     while len(stream) > 0:
-        parser = register.resolve_parser(stream)
+        parser = register.resolve_parser(stream, registerMap)
         if parser is not None:
             logging.debug('Resolved parser %s' % parser)
             try:
@@ -114,10 +113,10 @@ def parse(stream, register):
                 nodes.append(res)
                 stream = parser.stream
             except ParserRollback:
-                node, stream = _getTextNode(stream, register, True)
+                node, stream = _getTextNode(stream, register, registerMap, True)
                 nodes.append(node)
         else:
             logging.debug('Not resolved, adding TextNode')
-            node, stream = _getTextNode(stream, register)
+            node, stream = _getTextNode(stream, register, registerMap)
             nodes.append(node)
     return nodes

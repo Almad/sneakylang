@@ -63,12 +63,10 @@ class TestParserCapabilities(TestCase):
         self.assertEquals(DummyParser.name, DummyMacro.name)
 
     def testParserTransform(self):
-        r = Register()
-        r.add(DummyParser)
-        res = parse('####',r)
+        map = {DummyParser : Register()}
+        res = parse('####',map)
         self.assertEquals(len(res), 1)
-        # print parse('####',r)[0]
-        self.assertEquals(isinstance(parse('####',r)[0], DummyNode), True)
+        self.assertEquals(isinstance(res[0], DummyNode), True)
 
 if __name__ == "__main__":
     main()

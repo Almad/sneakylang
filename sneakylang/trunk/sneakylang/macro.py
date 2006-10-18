@@ -35,11 +35,9 @@ class Macro:
     help = """<this macro haven't specified usage example>"""
     parsersAllowed = None
 
-    def __init__(self, register):
-#        if self.__class__.parsersAllowed is None:
+    def __init__(self, register, registerMap):
         self.register = register
-#        else:
-#            self.register = Register(self.__class__.parsersAllowed)
+        self.registerMap = registerMap
 
     def expand(self, *args, **kwargs):
         """ Macro with arguments resolved; macro should expand themselves to Nodes and append to DOM """

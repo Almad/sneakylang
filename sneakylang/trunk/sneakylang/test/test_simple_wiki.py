@@ -51,7 +51,7 @@ class ParagraphMacro(Macro):
     def expand(self, content):
         p = ParagraphNode()
         logging.debug('Parsing paragraph content')
-        nodes = parse(content, self.register)
+        nodes = parse(content, self.registerMap)
         logging.debug('Appedding result %s to paragraph' % nodes)
         for n in nodes:
             p.addChild(n)
@@ -61,20 +61,20 @@ class ParagraphMacro(Macro):
 class Paragraph(Parser):
     start = ['^(\n){2}$']
     macro = ParagraphMacro
-    end = '^(\n){2}$'
+    end = '(\n){2}'
 
     def resolveContent(self):
-        self.stream = self.stream[len(self.chunk):]
         end = re.search(self.__class__.end, self.stream)
         if end:
-            self.content = self.stream[0:end.end()]
-            self.stream = self.stream[len(self.content):]
+            self.content = self.stream[0:end.start()]
+            self.chunk_end = self.stream[end.start():end.end()]
+            self.stream = self.stream[end.end():]
         else:
             self.content = self.stream
             self.stream = ''
 
     def callMacro(self):
-        macro = self.__class__.macro(self.register)
+        macro = self.__class__.macro(self.register, self.registerMap)
         return macro.expand(self.content)
 
 class StrongNode(Node): pass
@@ -96,7 +96,7 @@ class Strong(Parser):
     end = '("){2}'
 
     def resolveContent(self):
-        s = self.stream[len(self.chunk):]
+        s = self.stream
         end = re.search(self.__class__.end, s)
         if not end:
             logging.debug('End %s of macro %s not found, rolling back' % (self.__class__.end, self))
@@ -106,10 +106,13 @@ class Strong(Parser):
         self.stream = self.stream[end.end():]
 
     def callMacro(self):
-        macro = self.__class__.macro(self.register)
+        macro = self.__class__.macro(self.register, self.registerMap)
         return macro.expand(self.content)
 
-
+registerMap = {
+    Paragraph : Register([Strong]),
+    Strong : Register()
+}
 
 ### End of definition
 
@@ -122,7 +125,7 @@ class TestParsing(TestCase):
 
     def testSimplestPara(self):
         s = '''\n\nParagraph'''
-        o = parse(s, self.reg)
+        o = parse(s, registerMap)
         self.assertEquals(len(o), 1)
         self.assertEquals(isinstance(o[0], ParagraphNode), True)
         self.assertEquals(isinstance(o[0].children[0], TextNode), True)
@@ -130,7 +133,7 @@ class TestParsing(TestCase):
 
     def testSimplestParaWithEnd(self):
         s = '''\n\nParagraph\n\n'''
-        o = parse(s, self.reg)
+        o = parse(s, registerMap)
         self.assertEquals(len(o), 1)
         self.assertEquals(isinstance(o[0], ParagraphNode), True)
         self.assertEquals(isinstance(o[0].children[0], TextNode), True)
@@ -138,7 +141,7 @@ class TestParsing(TestCase):
 
     def testSimplestParaWithNoStrong(self):
         s = '''\n\nParagraph "" not strong, sorry ,)'''
-        o = parse(s, self.reg)
+        o = parse(s, registerMap)
         self.assertEquals(len(o), 1)
         self.assertEquals(isinstance(o[0], ParagraphNode), True)
         self.assertEquals(isinstance(o[0].children[0], TextNode), True)
@@ -147,7 +150,7 @@ class TestParsing(TestCase):
 
     def testParaWithStrong(self):
         s = '''\n\nParagraph ""strong""'''
-        o = parse(s, self.reg)
+        o = parse(s, registerMap)
         self.assertEquals(len(o), 1)
         self.assertEquals(isinstance(o[0], ParagraphNode), True)
         self.assertEquals(len(o[0].children), 2)
