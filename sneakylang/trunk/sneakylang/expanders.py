@@ -25,23 +25,12 @@
 ###
 
 class Expander:
-    def expand(self, text):
-        raise NotImplementedError, 'Expander do not support expand...WTF is that?'
+    def expand(self, node, format, node_map):
+        pass
 
-class Xhtml11Expander(Expander): pass
-class Docbook5Expander(Expander): pass
+class TextNodeExpander(Expander):
+    def expand(self, node, *args, **kwargs):
+        return node.content
 
-""" Expanders have to be singletons having one expand method.
-"""
-
-class _ParagraphXhtmlExpander(Xhtml11Expander):
-    def expand(self, text):
-        return ''.join(['<p>', text, '</p>'])
-paragraphXhtmlExpander = _ParagraphXhtmlExpander()
-
-
-class _ParagraphDocbook5Expander(Docbook5Expander):
-    def expand(self, text):
-        return ''.join(['<para>', text, '</para>'])
-paragraphDocbook5Expander = _ParagraphDocbook5Expander()
-
+def expand(node_list, format, node_map):
+    return ''.join([expander_map[format][node]().expand(node, format, node_map) for node in node_list])

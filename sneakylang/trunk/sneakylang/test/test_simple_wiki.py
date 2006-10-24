@@ -36,6 +36,7 @@ from sneakylang.macro import Macro
 from sneakylang.node import Node, TextNode
 from sneakylang.parser import *
 from sneakylang.register import Register
+from sneakylang.expanders import Expander, expand, TextNodeExpander
 
 
 ### Define basic grammar
@@ -114,6 +115,21 @@ registerMap = {
     Strong : Register()
 }
 
+class ParagraphDocbookExpand(Expander):
+    def expand(self, node, format, node_map):
+        return ''.join(['<para>'] + [expand(child, format, node_map) for child in self.node.children] + ['</para>'])
+
+class StrongDocbookExpander(Expander):
+    def expand(self, node, format, node_map):
+        pass
+
+expanderMap = {
+     'docbook5' : {
+         Paragraph : ParagraphDocbookExpand,
+         TextNode : TextNodeExpander,
+         Strong : StrongDocbookExpander
+     }
+}
 ### End of definition
 
 
@@ -160,6 +176,12 @@ class TestParsing(TestCase):
         self.assertEquals(isinstance(o[0].children[1].children[0], TextNode), True)
         self.assertEquals(o[0].children[1].children[0].content, 'strong')
 
+class TestExpand:
+
+    def testExpandFromTree(self):
+        p = ParagraphNode()
+        p.children[0] = TextNode().content = 'content'
+        self.assertEquals(expand(p), '<para>content</para>')
 
 if __name__ == "__main__":
     main()

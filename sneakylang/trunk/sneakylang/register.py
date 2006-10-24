@@ -22,6 +22,7 @@
 from re import compile
 
 from classregistry import registry, MasterRegistry, ClassRegistry
+from expanders import Expander
 
 class Register:
     def __init__(self, parsersList=None):
@@ -88,3 +89,17 @@ class Register:
             return None
         parser, chunk = self._most_matching(matching)
         return parser(stream, self, chunk, map)
+
+class ExpanderRegister:
+    def __init__(self, expander_map):
+        self.expander_map = {}
+        for k in expander_map:
+            if not isinstance(expander_map[k], Expander):
+                raise ValueError, '%s must be instance of Expander' % expander_map[k]
+            self.expander_map[k] = expander_map[k]
+
+    def get(self, node, format='xhtml11'):
+        try:
+            return self.expander_map[format][node]
+        except KeyError:
+            raise ValueError, 'Expander for format %s for node %s not in registry' % (format, node)
