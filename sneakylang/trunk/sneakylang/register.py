@@ -37,6 +37,8 @@ class Register:
         MasterRegistry.registries[repr(self)] = ClassRegistry(repr(self))
 
     def _addParser(self, parser):
+        if parser.start is None:
+            return
         for regexp in parser.start:
             if not regexp.startswith('^') or not regexp.endswith('$'):
                 raise ValueError, 'Regexp %s must start with ^ and ends with $ - others are not supported; should be, if You post an usecase' % regexp
