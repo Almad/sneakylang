@@ -81,6 +81,8 @@ class Register:
             if len(m.string[m.start():m.end()]) > length:
                 most = m
                 length = len(m.string[m.start():m.end()])
+        if most is None:
+            return (None, None)
         return (self.parsers_start[''.join([most.re.pattern, '$'])], m.string[m.start():m.end()])
 
     def resolve_parser(self, stream, map):
@@ -88,6 +90,8 @@ class Register:
         if len(matching) == 0:
             return None
         parser, chunk = self._most_matching(matching)
+        if parser is None or chunk is None:
+            return None
         return parser(stream, self, chunk, map)
 
 class ExpanderRegister:

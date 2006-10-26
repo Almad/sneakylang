@@ -30,13 +30,6 @@ import logging
 from expanders import *
 
 class Node:
-    # if expand to desired format supported,
-    # expander must be given
-    expanders = {# -*- coding: utf-8 -*-
-
-        'xhtlm11' : None,
-        'docbook5' : None
-    }
 
     def __init__(self, parent=None):
         self.parent = parent
@@ -80,19 +73,3 @@ class TextNode(Node):
 
     def addChar(self, char):
         self.content = ''.join([self.content, str(char)])
-
-###
-# Default nodes used in default Czechtile transformation
-###
-### Perhaps split in separate module
-
-class Document(Node):
-    def __init__(self):
-        Node.__init__(self, parent=False, chunk='')
-
-class MacroHandler(Node):
-    """ Very special one, actual macro executer """
-
-###
-# End of standard nodes
-###
