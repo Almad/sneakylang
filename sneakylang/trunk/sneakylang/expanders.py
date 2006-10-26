@@ -33,4 +33,6 @@ class TextNodeExpander(Expander):
         return node.content
 
 def expand(node_list, format, node_map):
+    if type(node_list) != type([]):
+        node_list = [node_list]
     return ''.join([node_map[format][node.__class__]().expand(node, format, node_map) for node in node_list])
