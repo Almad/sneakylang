@@ -76,16 +76,6 @@ class Parser(object):
         self.domTree = self.callMacro()
         return self.domTree
 
-class Document(Parser):
-    start = None
-    macro = macro.Document
-
-    def __init__(self, stream, register=None, chunk=None):
-        DomParser.__init__(self, stream, register, chunk)
-
-    def resolveContent(self):
-        self.args = self.stream
-
 def _getTextNode(stream, register, registerMap, forceFirstChar=False):
     tn = TextNode()
 
