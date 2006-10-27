@@ -90,8 +90,9 @@ def _getTextNode(stream, register, registerMap, forceFirstChar=False):
         stream = stream[1:]
     return (tn, stream)
 
-def parse(stream, registerMap):
-    register = Register([p for p in registerMap])
+def parse(stream, registerMap, register=None):
+    if register is None:
+        register = Register([p for p in registerMap])
     nodes = []
     while len(stream) > 0:
         parser = register.resolve_parser(stream, registerMap)
