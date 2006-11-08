@@ -49,6 +49,11 @@ class DummyParser(Parser):
     macro = DummyMacro
     name = 'dummy_macro' # remove when bug #2 will be solved
 
+class DummyParserWithTwoPossibleStarts(Parser):
+    start = ['^(####)$', '^(||||)$']
+    macro = DummyMacro
+    name = 'dummy_ts_macro'
+
 class NotAllowedParserCreatingCollisionWithMacro(Parser):
     # already in register
     start = ['^(\(){2}$']
@@ -123,6 +128,10 @@ class TestInstanceCreating(TestCase):
     def testReg(self):
         r = Register([DummyParser])
         self.assertEquals(DummyParser, r.get_parser('^(####)$'))
+
+        r2 = Register([DummyParserWithTwoPossibleStarts])
+        self.assertEquals(DummyParserWithTwoPossibleStarts, r2.get_parser('^(####)$'))
+        self.assertEquals(DummyParserWithTwoPossibleStarts, r2.get_parser('^(||||)$'))
 
 
 if __name__ == "__main__":

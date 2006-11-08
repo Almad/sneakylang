@@ -45,9 +45,9 @@ class Register:
             if self.parsers_start.has_key(regexp):
                 raise ValueError, 'Register already contains parser %s starting on %s; %s nod added' % (self.parsers_start[regexp], regexp, parser)
 
-            registry(repr(self)).addClass(parser)
             self.parser_name_map[parser.name] = parser.__name__
             self.parsers_start[regexp] = parser
+        registry(repr(self)).addClass(parser)
 
     def _addMacro(self, parser):
         if self.macro_map.has_key(parser.macro.name):
