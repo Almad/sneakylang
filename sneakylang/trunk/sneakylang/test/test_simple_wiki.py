@@ -161,8 +161,7 @@ class TestParsing(TestCase):
         self.assertEquals(len(o), 1)
         self.assertEquals(isinstance(o[0], ParagraphNode), True)
         self.assertEquals(isinstance(o[0].children[0], TextNode), True)
-        self.assertEquals(o[0].children[0].content, 'Paragraph ')
-        self.assertEquals(o[0].children[1].content, '"" not strong, sorry ,)')
+        self.assertEquals(o[0].children[0].content, 'Paragraph "" not strong, sorry ,)')
 
     def testParaWithStrong(self):
         s = '''\n\nParagraph ""strong""'''

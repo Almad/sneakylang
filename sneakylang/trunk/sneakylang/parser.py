@@ -76,8 +76,11 @@ class Parser(object):
         self.domTree = self.callMacro()
         return self.domTree
 
-def _getTextNode(stream, register, registerMap, forceFirstChar=False):
-    tn = TextNode()
+def _getTextNode(stream, register, registerMap, forceFirstChar=False, openedTextNode=None):
+    if openedTextNode is None:
+        tn = TextNode()
+    else:
+        tn = openedTextNode
 
     if forceFirstChar is True:
         tn.content = ''.join([tn.content, stream[0:1]])
@@ -93,6 +96,7 @@ def _getTextNode(stream, register, registerMap, forceFirstChar=False):
 def parse(stream, registerMap, register=None):
     if register is None:
         register = Register([p for p in registerMap])
+    openedTextNode = None
     nodes = []
     while len(stream) > 0:
         parser = register.resolve_parser(stream, registerMap)
@@ -103,11 +107,17 @@ def parse(stream, registerMap, register=None):
                 logging.debug('Appending %s' % res)
                 nodes.append(res)
                 stream = parser.stream
+                openedTextNode = None
             except ParserRollback:
-                node, stream = _getTextNode(stream, register, registerMap, True)
-                nodes.append(node)
+                logging.debug('Catched ParseRollback, forcing text char')
+                node, stream = _getTextNode(stream, register, registerMap, True, openedTextNode=openedTextNode)
+                if openedTextNode is None:
+                    nodes.append(node)
+                openedTextNode=node
         else:
             logging.debug('Not resolved, adding TextNode')
-            node, stream = _getTextNode(stream, register, registerMap)
-            nodes.append(node)
+            node, stream = _getTextNode(stream, register, registerMap, openedTextNode=openedTextNode)
+            if openedTextNode is None:
+                nodes.append(node)
+            openedTextNode=node
     return nodes
