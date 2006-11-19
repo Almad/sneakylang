@@ -183,5 +183,12 @@ class TestExpand(TestCase):
         p.children.append(tn)
         self.assertEquals(expand(p, 'docbook5', expanderMap), '<para>content</para>')
 
+    def testExpandFromTree(self):
+        p = ParagraphNode()
+        tn = TextNode()
+        tn.content = '<b>not bold</b>'
+        p.children.append(tn)
+        self.assertEquals(expand(p, 'docbook5', expanderMap), '<para>&lt;b&gt;not bold&lt;/b&gt;</para>')
+
 if __name__ == "__main__":
     main()

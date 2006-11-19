@@ -24,13 +24,15 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 ###
 
+from cgi import escape
+
 class Expander:
     def expand(self, node, format, node_map):
         pass
 
 class TextNodeExpander(Expander):
     def expand(self, node, *args, **kwargs):
-        return node.content
+        return escape(node.content)
 
 def expand(node_list, format, node_map):
     if type(node_list) != type([]):
