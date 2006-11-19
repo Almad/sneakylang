@@ -72,7 +72,7 @@ class Register:
 
     def get_macro(self, name):
         try:
-            return registry(repr(self)).getClass(self.parser_name_map[name]).macro
+            return self.macro_map[name]
         except KeyError:
             raise ValueError, 'No macro parser registered under name %s in registry' % name
 

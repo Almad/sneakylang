@@ -96,6 +96,8 @@ class TestRetrieving(TestCase):
         self.r = Register()
         self.r.add(DummyParser)
 
+        self.r2 = Register([DummyParser])
+
         self.map = {DummyParser:Register()}
 
     def testGet(self):
@@ -106,6 +108,7 @@ class TestRetrieving(TestCase):
 
     def testGet(self):
         self.assertEquals(DummyMacro, self.r.get_macro('dummy_macro'))
+        self.assertEquals(DummyMacro, self.r2.get_macro('dummy_macro'))
 
     def testResolver(self):
         self.assertEquals(isinstance(self.r.resolve_parser('####', self.map), DummyParser), True)
