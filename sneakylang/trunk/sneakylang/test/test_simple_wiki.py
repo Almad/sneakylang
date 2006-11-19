@@ -117,7 +117,7 @@ registerMap = {
 
 class ParagraphDocbookExpand(Expander):
     def expand(self, node, format, node_map):
-        return ''.join(['<para>'] + [expand(child, format, node_map) for child in self.node.children] + ['</para>'])
+        return ''.join(['<para>'] + [expand(child, format, node_map) for child in node.children] + ['</para>'])
 
 class StrongDocbookExpander(Expander):
     def expand(self, node, format, node_map):
@@ -125,7 +125,7 @@ class StrongDocbookExpander(Expander):
 
 expanderMap = {
      'docbook5' : {
-         Paragraph : ParagraphDocbookExpand,
+         ParagraphNode : ParagraphDocbookExpand,
          TextNode : TextNodeExpander,
          Strong : StrongDocbookExpander
      }
@@ -175,12 +175,13 @@ class TestParsing(TestCase):
         self.assertEquals(isinstance(o[0].children[1].children[0], TextNode), True)
         self.assertEquals(o[0].children[1].children[0].content, 'strong')
 
-class TestExpand:
-
+class TestExpand(TestCase):
     def testExpandFromTree(self):
         p = ParagraphNode()
-        p.children[0] = TextNode().content = 'content'
-        self.assertEquals(expand(p), '<para>content</para>')
+        tn = TextNode()
+        tn.content = 'content'
+        p.children.append(tn)
+        self.assertEquals(expand(p, 'docbook5', expanderMap), '<para>content</para>')
 
 if __name__ == "__main__":
     main()
