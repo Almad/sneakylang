@@ -31,6 +31,7 @@ from err import ParserRollback
 import macro
 from node import TextNode
 from register import Register
+from macro_caller import expand_macro_from_stream
 
 from classregistry import registry
 
@@ -38,13 +39,12 @@ class Parser(object):
     """ All parsers should derivate from this class """
     start = []
     macro = None
-    name = None # should be same as macro.name
 
-    def __init__(self, stream, register, chunk, map):
+    def __init__(self, stream, parentParser, chunk, registerMap):
         """ Parse is taking activity in DOM dom because of chunk resolved """
         self.chunk = chunk
-        self.register = register
-        self.registerMap = map
+        self.parentParser = parentParser
+        self.registerMap = registerMap
         self.args = None
         self.init()
         self.stream = stream[len(chunk):]
@@ -61,7 +61,7 @@ class Parser(object):
 
     def callMacro(self):
         """ Do proper call to related macro(s) """
-        return self.macro(self.register, self.registerMap).expand(self.args)
+        return self.macro(self, self.registerMap).expand(self.args)
 
     def resolveContent(self):
         """ Resolve end of macro and (if needed) mark content as self.args """
@@ -75,6 +75,12 @@ class Parser(object):
         self.resolveContent()
         self.domTree = self.callMacro()
         return self.domTree
+    
+    def getRegister(self):
+        return self.registerMap[self.__class__]
+    
+    register = property(fget=getRegister)
+
 
 def _getTextNode(stream, register, registerMap, forceFirstChar=False, openedTextNode=None):
     if openedTextNode is None:
@@ -96,6 +102,7 @@ def _getTextNode(stream, register, registerMap, forceFirstChar=False, openedText
 def parse(stream, registerMap, register=None):
     if register is None:
         register = Register([p for p in registerMap])
+        register.visit_register_map(registerMap)
     openedTextNode = None
     nodes = []
     while len(stream) > 0:
@@ -115,9 +122,20 @@ def parse(stream, registerMap, register=None):
                     nodes.append(node)
                 openedTextNode=node
         else:
-            logging.debug('Not resolved, adding TextNode')
-            node, stream = _getTextNode(stream, register, registerMap, openedTextNode=openedTextNode)
-            if openedTextNode is None:
-                nodes.append(node)
-            openedTextNode=node
+            # Is macro not in macro syntax?
+            macro = register.resolve_parser_macro(stream, registerMap)
+            if macro is not None:
+                # macro resolved, expand&add
+                logging.debug('Macro %s resolved' % macro)
+                macro_nodes, result_stream = expand_macro_from_stream(stream, register, registerMap)
+                logging.debug('Appending %s' % macro_nodes)
+                nodes.append(macro_nodes)
+                stream = result_stream
+                openedTextNode = None
+            else:
+                logging.debug('Parser is None (not resolved), adding TextNode.')
+                node, stream = _getTextNode(stream, register, registerMap, openedTextNode=openedTextNode)
+                if openedTextNode is None:
+                    nodes.append(node)
+                openedTextNode=node
     return nodes

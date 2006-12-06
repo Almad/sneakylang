@@ -32,6 +32,8 @@ import re
 
 from unittest import main,TestCase
 
+from module_test import *
+
 from sneakylang.macro import Macro
 from sneakylang.node import Node
 from sneakylang.parser import *
@@ -39,55 +41,12 @@ from sneakylang.register import Register
 
 #logging.basicConfig(level=logging.DEBUG)
 
-class DummyMacro(Macro):
-    name = 'dummy_macro'
-
-    def expand(self, *args):
-        return DummyNode(None)
-
-class DummyNode(Node):
-    name = 'dummy node'
-
-class DummyParser(Parser):
-    start = ['^(####)$']
-    macro = DummyMacro
-    name = 'dummy_macro' # remove when bug #2 will be solved
-
-class DummyParserTwo(Parser):
-    start = ['^(#####)$']
-    macro = DummyMacro
-    name = 'dummy_macro' # remove when bug #2 will be solved
-
-# parser borrowed from czechtile
-class Nadpis(Parser):
-    start = ['^(\n)?(=){1,5}(\ ){1}$']
-    macro = DummyMacro
-    name = 'dummy_macro'
-
-    def resolveContent(self):
-        endPattern = self.chunk[:-1]
-        if endPattern.startswith('\n'):
-            endPattern = endPattern[1:]
-        # chunk is \n={n}[whitespace],
-        # end is [whitespace]={n}\n
-        endMatch = re.search(''.join([' ', endPattern, '\n']), self.stream)
-        if not endMatch:
-            raise ParserRollback
-        self.level = len(endPattern)
-        self.content = self.stream[0:endMatch.start()]
-        # end()-1 because we won't eat trailing newline
-        self.chunk_end = self.stream[endMatch.start():endMatch.end()-1]
-        self.stream = self.stream[endMatch.end()-1:]
-
-    def callMacro(self):
-        """ Do proper call to related macro(s) """
-        return self.macro(self.register, self.registerMap).expand(self.level, self.content)
 
 
 class TestParserCapabilities(TestCase):
 
     def testSameName(self):
-        self.assertEquals(DummyParser.name, DummyMacro.name)
+        self.assertEquals(DummyParser.macro.name, DummyMacro.name)
 
     def testParserTransform(self):
         map = {DummyParser : Register()}

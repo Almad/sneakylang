@@ -31,3 +31,9 @@ from expanders import *
 from macro import *
 from node import *
 from parser import *
+from document import *
+
+def parse_start(stream, register_map):
+    parser = DocumentParser(documentType(stream, registerMap[documentType], '', registerMap), stream, registerMap[parsers.Document], '', registerMap)
+    documentNode = parser.parse()
+    return documentNode

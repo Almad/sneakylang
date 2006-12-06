@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-""" Macros available in Czechtile by defualt.
-Expected to b
-"""
+""" Macro superclass and default Document and Macro classes """
 
 ###
 # SneakyLang: Extensible WikiFramework
 #Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
 # and contributors, for complete list see
-# http://projects.almad.net/czechtile/wiki/Contributors
+# http://projects.almad.net/sneakylang/wiki/Contributors
 #
 #This library is free software; you can redistribute it and/or
 #modify it under the terms of the GNU Lesser General Public
@@ -25,30 +23,55 @@ Expected to b
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 ###
 
+import re
+import logging
+
 from err import *
 import node
-from register import Register
+from macro_caller import ARGUMENT_SEPARATOR
 
-class Macro:
+class Macro(object):
     """ All macros should derive from this class """
     name = None # define macro name
     help = """<this macro haven't specified usage example>"""
     parsersAllowed = None
 
-    def __init__(self, register, registerMap):
-        self.register = register
+    def __init__(self, parser, registerMap):
+        self.parser = parser
         self.registerMap = registerMap
-
+    
+    @classmethod
+    def parse_argument_string(self, argument_string):
+        """ Return list of arguments. Uses ARGUMENT_SEPARATOR as argument separator.
+        #TODO:
+        By default, closing text in double quotes (") causes treating it as single argument, even if it contains
+        argument separator. Nested quotes must not be escaped unless containting quote followed by argument
+        separator; escape char is backslash (\)
+        """
+        return argument_string.split(ARGUMENT_SEPARATOR)
+    
+    @classmethod
+    def argument_call(cls, argument_string, register=None, macro_instance=None):
+        """ This function do proper call to expand with properly parsed argument_string.
+        If you want to modify how argument string is parsed, overwrite parse_argument_string classmethod.
+        If macro_instance is not given, macro is instantiazed with parser and register_map extracted
+        from register argument.
+        With or without instance, result of self.expand is returned."""
+        if macro_instance is None:
+            if register is None:
+                raise ValueError, 'Either macro_instance or register must be given for performing argument_call'
+            macro_instance = cls(register.parser_name_map[cls.name], register.registerMap)
+        if argument_string is None:
+            return macro_instance.expand()
+        else:
+            return macro_instance.expand(*cls.parse_argument_string(argument_string))
+    
     def expand(self, *args, **kwargs):
         """ Macro with arguments resolved; macro should expand themselves to Nodes and append to DOM """
         raise NotImplementedError
-
-
-class Document(Macro):
-    name = 'document'
-    help = '<this macro should never be used>'
-
-    def expand(self, text):
-        from parser import DomParser
-        p = DomParser(text, None, None)
-        return p.parse(text)
+    
+    def _get_register(self):
+        """ Property function, use .register attribute instead """
+        return self.registerMap[self.parser]
+    
+    register = property(fget=_get_register)

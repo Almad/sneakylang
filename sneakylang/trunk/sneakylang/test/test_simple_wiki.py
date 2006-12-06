@@ -28,6 +28,7 @@ import logging
 import re
 
 from unittest import main,TestCase
+from module_test import *
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -39,89 +40,10 @@ from sneakylang.register import Register
 from sneakylang.expanders import Expander, expand, TextNodeExpander
 
 
-### Define basic grammar
-# This wiki have only paragraps (\n\n) and headings (=)
-
-class ParagraphNode(Node): pass
-
-class ParagraphMacro(Macro):
-    name = 'odstavec'
-    help = '((odstavec text odstavce))'
-    parsersAllowed = ['Strong']
-
-    def expand(self, content):
-        p = ParagraphNode()
-        logging.debug('Parsing paragraph content')
-        nodes = parse(content, self.registerMap)
-        logging.debug('Appedding result %s to paragraph' % nodes)
-        for n in nodes:
-            p.addChild(n)
-        logging.debug('Expanding node %s' % p)
-        return p
-
-class Paragraph(Parser):
-    start = ['^(\n){2}$']
-    macro = ParagraphMacro
-    end = '(\n){2}'
-
-    def resolveContent(self):
-        end = re.search(self.__class__.end, self.stream)
-        if end:
-            self.content = self.stream[0:end.start()]
-            self.chunk_end = self.stream[end.start():end.end()]
-            self.stream = self.stream[end.end():]
-        else:
-            self.content = self.stream
-            self.stream = ''
-
-    def callMacro(self):
-        macro = self.__class__.macro(self.register, self.registerMap)
-        return macro.expand(self.content)
-
-class StrongNode(Node): pass
-
-class StrongMacro(Macro):
-    name = 'silne'
-    help = '((silne zesileny text))'
-
-    def expand(self, content):
-        n = StrongNode()
-        tn = TextNode()
-        tn.content = content
-        n.addChild(tn)
-        return n
-
-class Strong(Parser):
-    start = ['^("){2}$']
-    macro = StrongMacro
-    end = '("){2}'
-
-    def resolveContent(self):
-        s = self.stream
-        end = re.search(self.__class__.end, s)
-        if not end:
-            logging.debug('End %s of macro %s not found, rolling back' % (self.__class__.end, self))
-            raise ParserRollback
-        self.stream = s
-        self.content = self.stream[0:end.start()]
-        self.stream = self.stream[end.end():]
-
-    def callMacro(self):
-        macro = self.__class__.macro(self.register, self.registerMap)
-        return macro.expand(self.content)
-
 registerMap = {
     Paragraph : Register([Strong]),
     Strong : Register()
 }
-
-class ParagraphDocbookExpand(Expander):
-    def expand(self, node, format, node_map):
-        return ''.join(['<para>'] + [expand(child, format, node_map) for child in node.children] + ['</para>'])
-
-class StrongDocbookExpander(Expander):
-    def expand(self, node, format, node_map):
-        pass
 
 expanderMap = {
      'docbook5' : {

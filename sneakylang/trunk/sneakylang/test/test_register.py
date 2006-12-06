@@ -31,7 +31,7 @@ import logging
 
 from unittest import main,TestCase
 
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 from sneakylang.register import *
 
@@ -136,6 +136,15 @@ class TestInstanceCreating(TestCase):
         self.assertEquals(DummyParserWithTwoPossibleStarts, r2.get_parser('^(####)$'))
         self.assertEquals(DummyParserWithTwoPossibleStarts, r2.get_parser('^(||||)$'))
 
+class TestRegisterMap(TestCase):
+    def testProperVisit(self):
+        map = RegisterMap()
+        map[DummyParser] = Register([])
+        self.assertEquals(map[DummyParser].register_map, map)
+        self.assertEquals(repr(map[DummyParser].register_map), repr(map))
+        map = RegisterMap({DummyParser : Register([])})
+        self.assertEquals(map[DummyParser].register_map, map)
+        self.assertEquals(repr(map[DummyParser].register_map), repr(map))
 
 if __name__ == "__main__":
     main()
