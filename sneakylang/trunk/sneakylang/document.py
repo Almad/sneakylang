@@ -47,6 +47,6 @@ class DocumentParser(Parser):
 
     def callMacro(self):
         """ Do proper call to related macro(s) """
-        return self.macro(self.register, self.registerMap).expand(self.content, self.parser)
+        return self.macro(self.register, self.register_map).expand(self.content, self.parser)
 
 class DocumentNode(Node): pass

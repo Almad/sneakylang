@@ -32,11 +32,11 @@ class RegisterMap(dict):
 #        self.macro_map = {}
         for k in self:
             self.__after_add(k)
-            
+
     def __after_add(self, k):
         self[k].visit_register_map(self)
 #        self.macro_map[k.macro.name] = self[k]
-    
+
     def __setitem__(self, k, v):
         dict.__setitem__(self, k,v)
         self.__after_add(k)
@@ -44,7 +44,7 @@ class RegisterMap(dict):
 class Register:
     def __init__(self, parsersList=None):
         # change to register_map,but now for backward compatibility
-        self.registerMap = None
+        self.register_map = None
         self.register_map = None
         self.parsers_start = {}
         self.parser_name_map = {}
@@ -81,12 +81,10 @@ class Register:
     def add(self, parser):
         self._addParser(parser)
         self._addMacro(parser)
-    
-    # change to register_map,but now for backward compatibility
+
     def visit_register_map(self, map):
-        self.registerMap = map
         self.register_map = map
-    
+
     def get_parser(self, regexp):
 
         # should be better then has_key as mostly we will not raise exception
@@ -111,7 +109,7 @@ class Register:
         if most is None:
             return (None, None)
         return (self.parsers_start[''.join([most.re.pattern, '$'])], m.string[m.start():m.end()])
-    
+
     def resolve_parser_macro(self, stream, map):
         """ Try resolving parser in macro syntax.
         Return properly initialized parser or None
@@ -124,12 +122,12 @@ class Register:
             return None
         else:
             raise ValueError, 'Unexpected exception, please report this as bug'
-   
+
     def resolve_parser(self, stream, map):
         """ Resolve parser from map in stream.
         Return properly initialized parser or None
         """
-        if self.registerMap is not None:
+        if self.register_map is None:
             logging.info('''Trying to use Register without RegisterMap being set''')
         matching = [compile(p[:-1]).match(stream) for p in self.parsers_start if compile(p[:-1]).match(stream)]
         if len(matching) == 0:

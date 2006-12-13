@@ -34,12 +34,12 @@ class Macro(object):
     """ All macros should derive from this class """
     name = None # define macro name
     help = """<this macro haven't specified usage example>"""
-    parsersAllowed = None
+    parsers_allowed = None
 
-    def __init__(self, parser, registerMap):
+    def __init__(self, parser, register_map):
         self.parser = parser
-        self.registerMap = registerMap
-    
+        self.register_map = register_map
+
     @classmethod
     def parse_argument_string(self, argument_string):
         """ Return list of arguments. Uses ARGUMENT_SEPARATOR as argument separator.
@@ -49,7 +49,7 @@ class Macro(object):
         separator; escape char is backslash (\)
         """
         return argument_string.split(ARGUMENT_SEPARATOR)
-    
+
     @classmethod
     def argument_call(cls, argument_string, register=None, macro_instance=None):
         """ This function do proper call to expand with properly parsed argument_string.
@@ -60,18 +60,18 @@ class Macro(object):
         if macro_instance is None:
             if register is None:
                 raise ValueError, 'Either macro_instance or register must be given for performing argument_call'
-            macro_instance = cls(register.parser_name_map[cls.name], register.registerMap)
+            macro_instance = cls(register.parser_name_map[cls.name], register.register_map)
         if argument_string is None:
             return macro_instance.expand()
         else:
             return macro_instance.expand(*cls.parse_argument_string(argument_string))
-    
+
     def expand(self, *args, **kwargs):
         """ Macro with arguments resolved; macro should expand themselves to Nodes and append to DOM """
         raise NotImplementedError
-    
+
     def _get_register(self):
         """ Property function, use .register attribute instead """
-        return self.registerMap[self.parser]
-    
+        return self.register_map[self.parser]
+
     register = property(fget=_get_register)

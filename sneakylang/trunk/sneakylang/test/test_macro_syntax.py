@@ -38,12 +38,12 @@ from sneakylang import parse, RegisterMap, DocumentParser
 
 class TestSimpleResolving(TestCase):
     def setUp(self):
-        self.registerMap = RegisterMap({
+        self.register_map = RegisterMap({
             Paragraph : Register([Strong]),
             Strong : Register([]),
             DocumentParser : Register([Paragraph])
         })
-        
+
         self.expanderMap = {
              'docbook5' : {
                  ParagraphNode : ParagraphDocbookExpand,
@@ -51,17 +51,17 @@ class TestSimpleResolving(TestCase):
                  Strong : StrongDocbookExpander
              }
         }
-    
+
     def testProperResolving(self):
         s = '((odstavec text odstavce))'
-        o = parse(s, self.registerMap)
+        o = parse(s, self.register_map)
         self.assertEquals(len(o), 1)
         self.assertEquals(o[0].__class__, ParagraphNode)
         self.assertEquals(o[0].children[0].__class__, TextNode)
         self.assertEquals(o[0].children[0].content, 'text odstavce')
         # nefunguje, nutne udelat parsovani vnorenych maker
 #        s = '((odstavec ((silne silny)) text odstavce))'
-#        o = parse(s, self.registerMap)
+#        o = parse(s, self.register_map)
 #        self.assertEquals(len(o), 1)
 #        self.assertEquals(o[0].__class__, ParagraphNode)
 #        self.assertEquals(o[0].children[0].__class__, Strong)
@@ -69,7 +69,7 @@ class TestSimpleResolving(TestCase):
 #        self.assertEquals(o[0].children[0].children[0].content, 'silny')
 #        self.assertEquals(o[0].children[1].__class__, TextNode)
 #        self.assertEquals(o[0].children[1].content, ' text odstavce')
-        
+
 
 if __name__ == "__main__":
     main()

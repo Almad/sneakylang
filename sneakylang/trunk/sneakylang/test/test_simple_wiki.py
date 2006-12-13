@@ -40,12 +40,12 @@ from sneakylang.register import Register
 from sneakylang.expanders import Expander, expand, TextNodeExpander
 
 
-registerMap = {
+register_map = {
     Paragraph : Register([Strong]),
     Strong : Register()
 }
 
-expanderMap = {
+expander_map = {
      'docbook5' : {
          ParagraphNode : ParagraphDocbookExpand,
          TextNode : TextNodeExpander,
@@ -63,7 +63,7 @@ class TestParsing(TestCase):
 
     def testSimplestPara(self):
         s = '''\n\nParagraph'''
-        o = parse(s, registerMap)
+        o = parse(s, register_map)
         self.assertEquals(len(o), 1)
         self.assertEquals(isinstance(o[0], ParagraphNode), True)
         self.assertEquals(isinstance(o[0].children[0], TextNode), True)
@@ -71,7 +71,7 @@ class TestParsing(TestCase):
 
     def testSimplestParaWithEnd(self):
         s = '''\n\nParagraph\n\n'''
-        o = parse(s, registerMap)
+        o = parse(s, register_map)
         self.assertEquals(len(o), 1)
         self.assertEquals(isinstance(o[0], ParagraphNode), True)
         self.assertEquals(isinstance(o[0].children[0], TextNode), True)
@@ -79,7 +79,7 @@ class TestParsing(TestCase):
 
     def testSimplestParaWithNoStrong(self):
         s = '''\n\nParagraph "" not strong, sorry ,)'''
-        o = parse(s, registerMap)
+        o = parse(s, register_map)
         self.assertEquals(len(o), 1)
         self.assertEquals(isinstance(o[0], ParagraphNode), True)
         self.assertEquals(isinstance(o[0].children[0], TextNode), True)
@@ -87,7 +87,7 @@ class TestParsing(TestCase):
 
     def testParaWithStrong(self):
         s = '''\n\nParagraph ""strong""'''
-        o = parse(s, registerMap)
+        o = parse(s, register_map)
         self.assertEquals(len(o), 1)
         self.assertEquals(isinstance(o[0], ParagraphNode), True)
         self.assertEquals(len(o[0].children), 2)
@@ -103,14 +103,14 @@ class TestExpand(TestCase):
         tn = TextNode()
         tn.content = 'content'
         p.children.append(tn)
-        self.assertEquals(expand(p, 'docbook5', expanderMap), '<para>content</para>')
+        self.assertEquals(expand(p, 'docbook5', expander_map), '<para>content</para>')
 
     def testExpandFromTree(self):
         p = ParagraphNode()
         tn = TextNode()
         tn.content = '<b>not bold</b>'
         p.children.append(tn)
-        self.assertEquals(expand(p, 'docbook5', expanderMap), '<para>&lt;b&gt;not bold&lt;/b&gt;</para>')
+        self.assertEquals(expand(p, 'docbook5', expander_map), '<para>&lt;b&gt;not bold&lt;/b&gt;</para>')
 
 if __name__ == "__main__":
     main()

@@ -37,7 +37,7 @@ from module_test import *
 from sneakylang.macro import Macro
 from sneakylang.node import Node
 from sneakylang.parser import *
-from sneakylang.register import Register
+from sneakylang.register import Register, RegisterMap
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -53,10 +53,11 @@ class TestParserCapabilities(TestCase):
         res = parse('####',map)
         self.assertEquals(len(res), 1)
         self.assertEquals(isinstance(res[0], DummyNode), True)
-    
+
     def testUnbreakedTextNodeProcessing(self):
         txt = '= jakoby nadpis\n= jakoby druhy nadpis'
-        res = parse(txt, {Nadpis:Register()})
+        res = parse(txt, RegisterMap({Nadpis:Register()}))
+
         self.assertEquals(1, len(res))
         self.assertEquals(txt, res[0].content)
 

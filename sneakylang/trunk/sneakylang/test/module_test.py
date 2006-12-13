@@ -58,7 +58,7 @@ class Nadpis(Parser):
     start = ['^(\n)?(=){1,5}(\ ){1}$']
     macro = DummyMacro
 
-    def resolveContent(self):
+    def resolve_content(self):
         endPattern = self.chunk[:-1]
         if endPattern.startswith('\n'):
             endPattern = endPattern[1:]
@@ -75,7 +75,7 @@ class Nadpis(Parser):
 
     def callMacro(self):
         """ Do proper call to related macro(s) """
-        return self.macro(self.register, self.registerMap).expand(self.level, self.content)
+        return self.macro(self.register, self.register_map).expand(self.level, self.content)
 
 ### Define basic grammar
 # This wiki have only paragraps (\n\n) and headings (=)
@@ -86,18 +86,18 @@ class ParagraphMacro(Macro):
     name = 'odstavec'
     help = '((odstavec text odstavce))'
     parsersAllowed = ['Strong']
-    
+
     @classmethod
     def parse_argument_string(self, argument_string):
         return [argument_string]
-    
+
     def expand(self, content):
         p = ParagraphNode()
         logging.debug('Parsing paragraph content')
-        nodes = parse(content, self.registerMap)
+        nodes = parse(content, self.register_map)
         logging.debug('Appedding result %s to paragraph' % nodes)
         for n in nodes:
-            p.addChild(n)
+            p.add_child(n)
         logging.debug('Expanding node %s' % p)
         return p
 
@@ -106,7 +106,7 @@ class Paragraph(Parser):
     macro = ParagraphMacro
     end = '(\n){2}'
 
-    def resolveContent(self):
+    def resolve_content(self):
         end = re.search(self.__class__.end, self.stream)
         if end:
             self.content = self.stream[0:end.start()]
@@ -116,8 +116,8 @@ class Paragraph(Parser):
             self.content = self.stream
             self.stream = ''
 
-    def callMacro(self):
-        macro = self.__class__.macro(self.register, self.registerMap)
+    def call_macro(self):
+        macro = self.__class__.macro(self.register, self.register_map)
         return macro.expand(self.content)
 
 class StrongNode(Node): pass
@@ -130,7 +130,7 @@ class StrongMacro(Macro):
         n = StrongNode()
         tn = TextNode()
         tn.content = content
-        n.addChild(tn)
+        n.add_child(tn)
         return n
 
 class Strong(Parser):
@@ -138,7 +138,7 @@ class Strong(Parser):
     macro = StrongMacro
     end = '("){2}'
 
-    def resolveContent(self):
+    def resolve_content(self):
         s = self.stream
         end = re.search(self.__class__.end, s)
         if not end:
@@ -148,8 +148,8 @@ class Strong(Parser):
         self.content = self.stream[0:end.start()]
         self.stream = self.stream[end.end():]
 
-    def callMacro(self):
-        macro = self.__class__.macro(self.register, self.registerMap)
+    def call_macro(self):
+        macro = self.__class__.macro(self.register, self.register_map)
         return macro.expand(self.content)
 
 

@@ -34,32 +34,32 @@ class Node:
     def __init__(self, parent=None):
         self.parent = parent
         self.children = []
-        self.actualTextContent = None # actual TextNode to fill data in
+        self.actual_text_content = None # actual TextNode to fill data in
 
-    def addChild(self, node):
+    def add_child(self, node):
         if not isinstance(node, Node):
             raise ValueError, 'Child of node must be instance of Node'
         if isinstance(node, TextNode):
-            self.actualTextContent = node
+            self.actual_text_content = node
         else:
-            self.actualTextContent = None
+            self.actual_text_content = None
         self.children.append(node)
 
-    def addTextContent(self, stream):
-        if self.actualTextContent is None:
-            self.addChild(TextNode(parent=self, chunk=None))
+    def add_text_tontent(self, stream):
+        if self.actual_text_content is None:
+            self.add_child(TextNode(parent=self, chunk=None))
 
-        self.actualTextContent.addChar(stream[0:1])
+        self.actual_text_content.add_char(stream[0:1])
         return stream[1:]
 
     def expand(self, format):
         for child in self.childs:
             child.expand(format)
 
-        if self.textContent is not None:
+        if self.text_content is not None:
             if not self.expanders.has_key(format):
                 raise NotImplementedError, "Macro %s does not support transformation to %s" % (self.name, format)
-            self.expanders[format].expand(self.textContent)
+            self.expanders[format].expand(self.text_content)
 
 class TextNode(Node):
     """ Special Node holding text.
@@ -71,5 +71,5 @@ class TextNode(Node):
         self.content = ''
         Node.__init__(self, *args, **kwargs)
 
-    def addChar(self, char):
+    def add_char(self, char):
         self.content = ''.join([self.content, str(char)])
