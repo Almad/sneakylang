@@ -40,7 +40,7 @@ class Document(Macro):
     def expand(self, content):
         doc = DocumentNode()
         logging.debug('Creating document node and parsing document')
-        res = parse(content, self.register_map)
+        res = parse(content, self.register_map, self.register)
         for node in res:
             if node is not None:
                 doc.add_child(node)
