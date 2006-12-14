@@ -33,7 +33,7 @@ class Document(Macro):
 
     def expand(self, content, parser):
         doc = DocumentNode()
-        doc.addChild(parser.parse())
+        doc.add_child(parser.parse())
         return doc
 
 
@@ -41,11 +41,11 @@ class DocumentParser(Parser):
     start = None
     macro = Document
 
-    def resolveContent(self):
+    def resolve_content(self):
         self.content = self.stream
         self.stream = ''
 
-    def callMacro(self):
+    def call_macro(self):
         """ Do proper call to related macro(s) """
         return self.macro(self.register, self.register_map).expand(self.content, self.parser)
 

@@ -72,6 +72,6 @@ class Macro(object):
 
     def _get_register(self):
         """ Property function, use .register attribute instead """
-        return self.register_map[self.parser]
+        return self.register_map[self.parser.__class__]
 
     register = property(fget=_get_register)
