@@ -51,7 +51,7 @@ class Register:
         self.macro_map = {}
         self._emptyRegistry()
         if parsersList is not None:
-            self.addParsers(parsersList)
+            self.add_parsers(parsersList)
 
     def _emptyRegistry(self):
         MasterRegistry.registries[repr(self)] = ClassRegistry(repr(self))
@@ -74,7 +74,7 @@ class Register:
             raise ValueError, 'Macro %s already added under name %s' % (self.macro_map[parser.macro.name], parser.macro.name)
         self.macro_map[parser.macro.name] = parser.macro
 
-    def addParsers(self, parsersList):
+    def add_parsers(self, parsersList):
         for p in parsersList:
             self.add(p)
 
@@ -123,8 +123,8 @@ class Register:
         else:
             raise ValueError, 'Unexpected exception, please report this as bug'
 
-    def resolve_parser(self, stream, map):
-        """ Resolve parser from map in stream.
+    def resolve_parser(self, stream):
+        """ Resolve parser from my register_map in stream.
         Return properly initialized parser or None
         """
         if self.register_map is None:
@@ -135,7 +135,7 @@ class Register:
         parser, chunk = self._most_matching(matching)
         if parser is None or chunk is None:
             return None
-        return parser(stream, self, chunk, map)
+        return parser(stream, self, chunk, self.register_map)
 
 class ExpanderRegister:
     def __init__(self, expander_map):

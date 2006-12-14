@@ -34,6 +34,6 @@ from parser import *
 from document import *
 
 def parse_start(stream, register_map):
-    parser = DocumentParser(documentType(stream, registerMap[documentType], '', registerMap), stream, registerMap[parsers.Document], '', registerMap)
+    parser = DocumentParser(stream, register_map[document.DocumentParser], '', register_map)
     documentNode = parser.parse()
     return documentNode

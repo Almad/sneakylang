@@ -23,6 +23,8 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 ###
 
+import logging
+
 from macro import Macro
 from parser import Parser, parse
 from node import Node
@@ -31,9 +33,17 @@ class Document(Macro):
     name = 'document'
     help = '<toto makro se nikdy nepouziva explicitne>'
 
-    def expand(self, content, parser):
+    @classmethod
+    def parse_argument_string(self, argument_string):
+        return (argument_string,)
+    
+    def expand(self, content):
         doc = DocumentNode()
-        doc.add_child(parser.parse())
+        logging.debug('Creating document node and parsing document')
+        res = parse(content, self.register_map)
+        for node in res:
+            if node is not None:
+                doc.add_child(node)
         return doc
 
 
@@ -42,11 +52,11 @@ class DocumentParser(Parser):
     macro = Document
 
     def resolve_content(self):
-        self.content = self.stream
+        self.args = self.stream
         self.stream = ''
 
-    def call_macro(self):
-        """ Do proper call to related macro(s) """
-        return self.macro(self.register, self.register_map).expand(self.content, self.parser)
+#    def call_macro(self):
+#        """ Do proper call to related macro(s) """
+#        return self.macro(self.register, self.register_map).expand(self.content, self.parser)
 
 class DocumentNode(Node): pass

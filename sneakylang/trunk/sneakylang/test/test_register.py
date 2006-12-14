@@ -111,7 +111,7 @@ class TestRetrieving(TestCase):
         self.assertEquals(DummyMacro, self.r2.get_macro('dummy_macro'))
 
     def testResolver(self):
-        self.assertEquals(isinstance(self.r.resolve_parser('####', self.map), DummyParser), True)
+        self.assertEquals(isinstance(self.r.resolve_parser('####'), DummyParser), True)
 
     def testResolverConflicting(self):
 
@@ -124,8 +124,8 @@ class TestRetrieving(TestCase):
 
         self.r.add(DummyParserTwo)
         self.map[DummyParserTwo] = Register()
-        self.assertEquals(isinstance(self.r.resolve_parser('#### 123', self.map), DummyParser), True)
-        self.assertEquals(isinstance(self.r.resolve_parser('#####', self.map), DummyParserTwo), True)
+        self.assertEquals(isinstance(self.r.resolve_parser('#### 123'), DummyParser), True)
+        self.assertEquals(isinstance(self.r.resolve_parser('#####'), DummyParserTwo), True)
 
 class TestInstanceCreating(TestCase):
     def testReg(self):

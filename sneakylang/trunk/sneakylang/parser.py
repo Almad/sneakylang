@@ -92,7 +92,7 @@ def _get_text_node(stream, register, register_map, force_first_char=False, opene
         tn.content = ''.join([tn.content, stream[0:1]])
         stream = stream[1:]
 
-    while register.resolve_parser(stream, register_map) is None:
+    while register.resolve_parser(stream) is None:
         if len(stream) == 0:
             break
         tn.content = ''.join([tn.content, stream[0:1]])
@@ -106,7 +106,7 @@ def parse(stream, register_map, register=None):
     opened_text_node = None
     nodes = []
     while len(stream) > 0:
-        parser = register.resolve_parser(stream, register_map)
+        parser = register.resolve_parser(stream)
         if parser is not None:
             logging.debug('Resolved parser %s' % parser)
             try:
