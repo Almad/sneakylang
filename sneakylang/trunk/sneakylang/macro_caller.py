@@ -46,9 +46,9 @@ MACRO_NAME_ARGUMENT_SEPARATOR = ' '
 # pattern object should begin with ^ as search is performed and macro
 # on beginning of the string assumed
 MACRO_BEGIN = '(('
-                 
+
 MACRO_END = '))'
-                 
+
 # Whether macro must be oneliner ((macro arg arg)), or should be defined multiline
 # ((macro
 #        arg
@@ -78,7 +78,7 @@ def resolve_name_from_register(stream, register):
         return name
     else:
         return None
-    
+
 def get_content(stream):
     """ Return content of macro or None if proper end not resolved """
     if not ALLOW_MULTILINE_MACRO:
@@ -89,8 +89,8 @@ def get_content(stream):
         # FIXME: Remember for )) in "enclosed argument", which should be
         # not considered as macro end
         return this_line.split(MACRO_END)[0]
-        
-        
+
+
     else:
         raise NotImplementedError, 'Multiline macros not implemented yet'
 
@@ -102,10 +102,10 @@ def process_resolved_macro(stream, register):
         return resolve_name_from_register(macro_content, register)
 
 def get_macro_name(stream, register):
-    """ Resolve if stream is beginning with macro. 
+    """ Resolve if stream is beginning with macro.
     If yes, name is resolved and returned, otherwise function returns None
     """
-    
+
     # first resolve if macro syntax
     if isinstance(MACRO_BEGIN, StringType):
         if not stream.startswith(MACRO_BEGIN):
@@ -120,7 +120,7 @@ def get_macro_name(stream, register):
             return None
         else:
             return process_resolved_macro(stream[res.end():], register)
-            
+
     raise NotImplementedError, 'String not parsed in macro in one of possible MACRO_BEGIN instances, please report this as bug.'
 
 def call_macro(macro, argument_string, register):
@@ -133,7 +133,7 @@ def expand_macro_from_stream(stream, register, register_map):
     #FIXME: OMG, get this regexp syntax working
     if not isinstance(MACRO_BEGIN, StringType):
         raise NotImplementedError, 'MACRO_BEGIN must be string, regular expressions not yet supported'
-    
+
     macro_content = get_content(stream[len(MACRO_BEGIN):])
     # assuming macro previously resolved in context
     name, args = resolve_macro_name(macro_content)

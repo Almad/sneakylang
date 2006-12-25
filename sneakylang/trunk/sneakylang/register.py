@@ -43,8 +43,6 @@ class RegisterMap(dict):
 
 class Register:
     def __init__(self, parsersList=None):
-        # change to register_map,but now for backward compatibility
-        self.register_map = None
         self.register_map = None
         self.parsers_start = {}
         self.parser_name_map = {}
@@ -65,7 +63,7 @@ class Register:
             if self.parsers_start.has_key(regexp):
                 raise ValueError, 'Register already contains parser %s starting on %s; %s nod added' % (self.parsers_start[regexp], regexp, parser)
 
-            self.parser_name_map[parser.macro.name] = parser.__name__
+            self.parser_name_map[parser.macro.name] = parser
             self.parsers_start[regexp] = parser
         registry(repr(self)).addClass(parser)
 
@@ -98,6 +96,9 @@ class Register:
             return self.macro_map[name]
         except KeyError:
             raise ValueError, 'No macro parser registered under name %s in registry' % name
+
+    def get_parser_by_macro_name(self, macro_name):
+        return self.parser_name_map[macro_name]
 
     def _most_matching(self, matching):
         most = None

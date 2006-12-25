@@ -68,14 +68,14 @@ class Nadpis(Parser):
         if not endMatch:
             raise ParserRollback
         self.level = len(endPattern)
-        self.content = self.stream[0:endMatch.start()]
+        self.argument_string = self.stream[0:endMatch.start()]
         # end()-1 because we won't eat trailing newline
         self.chunk_end = self.stream[endMatch.start():endMatch.end()-1]
         self.stream = self.stream[endMatch.end()-1:]
 
-    def callMacro(self):
+    def call_macro(self):
         """ Do proper call to related macro(s) """
-        return self.macro(self.register, self.register_map).expand(self.level, self.content)
+        return self.macro(self.register, self.register_map).expand(self.level, self.argument_string)
 
 ### Define basic grammar
 # This wiki have only paragraps (\n\n) and headings (=)
@@ -94,7 +94,7 @@ class ParagraphMacro(Macro):
     def expand(self, content):
         p = ParagraphNode()
         logging.debug('Parsing paragraph content')
-        nodes = parse(content, self.register_map)
+        nodes = parse(content, self.register_map, self.register)
         logging.debug('Appedding result %s to paragraph' % nodes)
         for n in nodes:
             p.add_child(n)
@@ -109,16 +109,15 @@ class Paragraph(Parser):
     def resolve_content(self):
         end = re.search(self.__class__.end, self.stream)
         if end:
-            self.content = self.stream[0:end.start()]
+            self.argument_string = self.stream[0:end.start()]
             self.chunk_end = self.stream[end.start():end.end()]
             self.stream = self.stream[end.end():]
         else:
-            self.content = self.stream
+            self.argument_string = self.stream
             self.stream = ''
 
-    def call_macro(self):
-        macro = self.__class__.macro(self.register, self.register_map)
-        return macro.expand(self.content)
+#    def call_macro(self):
+#        return self.__class__.macro.argument_call(self.argument_string, register=self.register)
 
 class StrongNode(Node): pass
 
@@ -145,13 +144,8 @@ class Strong(Parser):
             logging.debug('End %s of macro %s not found, rolling back' % (self.__class__.end, self))
             raise ParserRollback
         self.stream = s
-        self.content = self.stream[0:end.start()]
+        self.argument_string = self.stream[0:end.start()]
         self.stream = self.stream[end.end():]
-
-    def call_macro(self):
-        macro = self.__class__.macro(self.register, self.register_map)
-        return macro.expand(self.content)
-
 
 class ParagraphDocbookExpand(Expander):
     def expand(self, node, format, node_map):

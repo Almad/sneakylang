@@ -127,14 +127,18 @@ class TestRetrieving(TestCase):
         self.assertEquals(isinstance(self.r.resolve_parser('#### 123'), DummyParser), True)
         self.assertEquals(isinstance(self.r.resolve_parser('#####'), DummyParserTwo), True)
 
-class TestInstanceCreating(TestCase):
-    def testReg(self):
+class TestRegister(TestCase):
+    def testInstanceCreating(self):
         r = Register([DummyParser])
         self.assertEquals(DummyParser, r.get_parser('^(####)$'))
 
         r2 = Register([DummyParserWithTwoPossibleStarts])
         self.assertEquals(DummyParserWithTwoPossibleStarts, r2.get_parser('^(####)$'))
         self.assertEquals(DummyParserWithTwoPossibleStarts, r2.get_parser('^(||||)$'))
+
+    def testProperHolders(self):
+        reg = Register([DummyParser])
+        self.assertEquals(reg.get_parser_by_macro_name('dummy_macro'), DummyParser)
 
 class TestRegisterMap(TestCase):
     def testProperVisit(self):
@@ -145,6 +149,7 @@ class TestRegisterMap(TestCase):
         map = RegisterMap({DummyParser : Register([])})
         self.assertEquals(map[DummyParser].register_map, map)
         self.assertEquals(repr(map[DummyParser].register_map), repr(map))
+
 
 if __name__ == "__main__":
     main()

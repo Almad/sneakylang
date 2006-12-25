@@ -57,10 +57,13 @@ class Macro(object):
         If macro_instance is not given, macro is instantiazed with parser and register_map extracted
         from register argument.
         With or without instance, result of self.expand is returned."""
+        if argument_string is None:
+            argument_string = ''
         if macro_instance is None:
             if register is None:
                 raise ValueError, 'Either macro_instance or register must be given for performing argument_call'
-            macro_instance = cls(register.parser_name_map[cls.name], register.register_map)
+            #FIXME: Parent parser must be known
+            macro_instance = cls(register.get_parser_by_macro_name(cls.name)(argument_string, None, '', register.register_map, register), register.register_map)
         if argument_string is None:
             return macro_instance.expand()
         else:

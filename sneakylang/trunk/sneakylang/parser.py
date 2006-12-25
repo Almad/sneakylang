@@ -40,14 +40,15 @@ class Parser(object):
     start = []
     macro = None
 
-    def __init__(self, stream, parent_parser, chunk, register_map):
+    def __init__(self, stream, parent_parser, chunk, register_map, register=None):
         """ Parse is taking activity in DOM dom because of chunk resolved """
         self.chunk = chunk
         self.parent_parser = parent_parser
         self.register_map = register_map
-        self.args = ''
+        self.argument_string = ''
         self.init()
         self.stream = stream[len(chunk):]
+        self._register = register
 
     def init(self):
         """ Something to do after init? ,) """
@@ -61,7 +62,7 @@ class Parser(object):
 
     def call_macro(self):
         """ Do proper call to related macro(s) """
-        return self.macro.argument_call(self.args, macro_instance=self.macro(self, self.register_map))
+        return self.macro.argument_call(self.argument_string, macro_instance=self.macro(self, self.register_map))
 
     def resolve_content(self):
         """ Resolve end of macro and (if needed) mark content as self.args """
@@ -77,7 +78,10 @@ class Parser(object):
         return self.dom_tree
 
     def get_register(self):
-        return self.register_map[self.__class__]
+        if self._register is not None:
+            return self._register
+        else:
+            return self.register_map[self.__class__]
 
     register = property(fget=get_register)
 
