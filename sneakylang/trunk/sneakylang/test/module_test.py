@@ -39,7 +39,7 @@ from sneakylang.expanders import Expander, expand, TextNodeExpander
 class DummyMacro(Macro):
     name = 'dummy_macro'
 
-    def expand(self, *args):
+    def expand_to_nodes(self, *args):
         return DummyNode(None)
 
 class DummyNode(Node):
@@ -53,10 +53,16 @@ class DummyParserTwo(Parser):
     start = ['^(#####)$']
     macro = DummyMacro
 
+class NadpisMacro(Macro):
+    name = 'nadpis'
+
+    def expand_to_nodes(self, *args):
+        return DummyNode(None)
+
 # parser borrowed from czechtile
 class Nadpis(Parser):
     start = ['^(\n)?(=){1,5}(\ ){1}$']
-    macro = DummyMacro
+    macro = NadpisMacro
 
     def resolve_content(self):
         endPattern = self.chunk[:-1]
@@ -88,10 +94,10 @@ class ParagraphMacro(Macro):
     parsersAllowed = ['Strong']
 
     @classmethod
-    def parse_argument_string(self, argument_string):
+    def get_argument_list(self, argument_string):
         return [argument_string]
 
-    def expand(self, content):
+    def expand_to_nodes(self, content):
         p = ParagraphNode()
         logging.debug('Parsing paragraph content')
         nodes = parse(content, self.register_map, self.register)
@@ -116,16 +122,13 @@ class Paragraph(Parser):
             self.argument_string = self.stream
             self.stream = ''
 
-#    def call_macro(self):
-#        return self.__class__.macro.argument_call(self.argument_string, register=self.register)
-
 class StrongNode(Node): pass
 
 class StrongMacro(Macro):
     name = 'silne'
     help = '((silne zesileny text))'
 
-    def expand(self, content):
+    def expand_to_nodes(self, content):
         n = StrongNode()
         tn = TextNode()
         tn.content = content
@@ -148,9 +151,9 @@ class Strong(Parser):
         self.stream = self.stream[end.end():]
 
 class ParagraphDocbookExpand(Expander):
-    def expand(self, node, format, node_map):
+    def expand_to_nodes(self, node, format, node_map):
         return ''.join(['<para>'] + [expand(child, format, node_map) for child in node.children] + ['</para>'])
 
 class StrongDocbookExpander(Expander):
-    def expand(self, node, format, node_map):
+    def expand_to_nodes(self, node, format, node_map):
         pass

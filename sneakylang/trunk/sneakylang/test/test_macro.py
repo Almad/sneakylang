@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+ #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """ Test Macros and related things"""
@@ -35,17 +35,24 @@ from module_test import *
 
 from sneakylang.macro import *
 from sneakylang.macro_caller import *
-from sneakylang.register import Register
+from sneakylang.register import Register, RegisterMap
 
 #logging.basicConfig(level=logging.DEBUG)
 
-class TestMacroCaller(TestCase):
+class TestMacro(TestCase):
     def setUp(self):
-        self.reg = Register([DummyParser])
+        self.reg = Register([DummyMacro])
+        self.reg_map = RegisterMap({DummyMacro : Register()})
 
     def testDefaultArgumentParsing(self):
-        args = Macro.parse_argument_string("arg arg2")
-        self.assertEquals(args, ['arg', 'arg2'])
+        macro = DummyMacro(self.reg_map)
+        macro.parse_argument_string("arg arg2")
+        self.assertEquals(macro.arguments, ['arg', 'arg2'])
+
+
+class TestMacroCaller(TestCase):
+    def setUp(self):
+        self.reg = Register([DummyMacro])
 
     def testContentResolving(self):
         self.assertEquals('arg arg', get_content('arg arg))adf'))
@@ -56,7 +63,7 @@ class TestMacroCaller(TestCase):
     def testResolveName(self):
         self.assertEquals(('dummy_macro', None), resolve_macro_name('dummy_macro'))
         self.assertEquals(('dummy_macro', 'arg arg'), resolve_macro_name('dummy_macro arg arg'))
-
+#
     def testResolvingFromRegister(self):
         self.assertEquals('dummy_macro', resolve_name_from_register('dummy_macro', self.reg))
 
@@ -67,16 +74,10 @@ class TestMacroCaller(TestCase):
         self.assertEquals(None, get_macro_name('((dummy_macro argument argument \n)) Multiline not allowed', self.reg))
 
     def testMacroExpanding(self):
-        self.assertEquals(DummyNode, call_macro(DummyMacro, '', Register([DummyParser])).__class__)
-        self.assertEquals(DummyNode, expand_macro_from_stream('((dummy_macro))', self.reg, Register([DummyParser]))[0].__class__)
-
-    def testEnlosedArgumentParsing(self):
-        #FIXME: Do proper argument parsing, now disabled
-#        args = parse_arguments('"this is one arg"')
-#        self.assertEquals(args, ['this is one arg'])
-        pass
-
-    # TODO: Proper argument parsing, see macro.parse_arguments docstring
+        self.assertEquals(DummyNode, call_macro(DummyMacro, '', Register([DummyMacro])).__class__)
+        res = expand_macro_from_stream('((dummy_macro))', self.reg)
+        self.assertEquals(res[0].__class__, DummyMacro)
+        self.assertEquals(res[1], '')
 
 if __name__ == "__main__":
     main()

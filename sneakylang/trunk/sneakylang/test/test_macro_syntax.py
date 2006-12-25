@@ -34,14 +34,14 @@ from module_test import *
 
 #logging.basicConfig(level=logging.DEBUG)
 
-from sneakylang import parse, RegisterMap, DocumentParser
+from sneakylang import parse, RegisterMap, Document
 
 class TestSimpleResolving(TestCase):
     def setUp(self):
         self.register_map = RegisterMap({
-            Paragraph : Register([Strong]),
-            Strong : Register([]),
-            DocumentParser : Register([Paragraph])
+            ParagraphMacro : Register([StrongMacro]),
+            StrongMacro : Register([]),
+            Document : Register([ParagraphMacro])
         })
 
         self.expanderMap = {

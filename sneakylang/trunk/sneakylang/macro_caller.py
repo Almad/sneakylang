@@ -124,11 +124,11 @@ def get_macro_name(stream, register):
     raise NotImplementedError, 'String not parsed in macro in one of possible MACRO_BEGIN instances, please report this as bug.'
 
 def call_macro(macro, argument_string, register):
-    return macro.argument_call(argument_string, register)
+    return macro.argument_call(argument_string, register).expand()
 
-def expand_macro_from_stream(stream, register, register_map):
-    """ Stream is beginning with properly written macro, call proper object, expand on nodes and
-    return tuple(nodeList, stripped_stream)
+def expand_macro_from_stream(stream, register):
+    """ Stream is beginning with properly written macro, create proper macro and return
+    return tuple(macro_instance, stripped_stream)
     """
     #FIXME: OMG, get this regexp syntax working
     if not isinstance(MACRO_BEGIN, StringType):
@@ -137,6 +137,5 @@ def expand_macro_from_stream(stream, register, register_map):
     macro_content = get_content(stream[len(MACRO_BEGIN):])
     # assuming macro previously resolved in context
     name, args = resolve_macro_name(macro_content)
-    node_list = call_macro(register.macro_map[name], args, register)
     new_stream = stream[len(MACRO_BEGIN)+len(macro_content)+len(MACRO_END):]
-    return (node_list, new_stream)
+    return (register.macro_map[name].argument_call(args, register), new_stream)

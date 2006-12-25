@@ -41,22 +41,25 @@ from sneakylang.register import Register, RegisterMap
 
 #logging.basicConfig(level=logging.DEBUG)
 
+class TestParser(TestCase):
 
+    def setUp(self):
+        self.p = DummyParser('', None, '####', Register([DummyMacro]))
+
+    def testMacroResolving(self):
+        self.assertEquals(self.p.get_macro()[0].__class__, DummyMacro)
 
 class TestParserCapabilities(TestCase):
 
-    def testSameName(self):
-        self.assertEquals(DummyParser.macro.name, DummyMacro.name)
-
     def testParserTransform(self):
-        map = {DummyParser : Register()}
-        res = parse('####',map)
+        register_map = RegisterMap({DummyMacro: Register([])})
+        res = parse('####',register_map, parsers=[DummyParser])
         self.assertEquals(len(res), 1)
-        self.assertEquals(isinstance(res[0], DummyNode), True)
+        self.assertEquals(res[0].__class__, DummyNode)
 
     def testUnbreakedTextNodeProcessing(self):
         txt = '= jakoby nadpis\n= jakoby druhy nadpis'
-        res = parse(txt, RegisterMap({Nadpis:Register()}))
+        res = parse(txt, RegisterMap({NadpisMacro:Register()}))
 
         self.assertEquals(1, len(res))
         self.assertEquals(txt, res[0].content)

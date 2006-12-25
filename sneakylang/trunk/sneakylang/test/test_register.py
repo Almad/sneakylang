@@ -39,20 +39,23 @@ from sneakylang.macro import Macro
 from sneakylang.node import Node
 from sneakylang.parser import Parser
 
-from sneakylang.classregistry import registry
-
 class DummyMacro(Macro):
     name = 'dummy_macro'
 
 class DummyParser(Parser):
-    start = ['^(####)$']
+    start = ['(#){4}']
     macro = DummyMacro
-    name = 'dummy_macro' # remove when bug #2 will be solved
 
 class DummyParserWithTwoPossibleStarts(Parser):
     start = ['^(####)$', '^(||||)$']
     macro = DummyMacro
-    name = 'dummy_ts_macro'
+
+class AnotherDummyMacro(Macro):
+    name = 'another_dummy_macro'
+
+class AnotherDummyParser(Parser):
+    start = ['--']
+    macro = AnotherDummyMacro
 
 class NotAllowedParserCreatingCollisionWithMacro(Parser):
     # already in register
@@ -66,79 +69,56 @@ class NotAllowedParserHavingBadRegexp2(Parser):
     # already in register
     start = ['^(\(){2}']
 
-class TestDistinctHolders(TestCase):
-    def testDistinctHoldersAndNoDuplicatesInOne(self):
-        r1 = Register()
-        r2 = Register()
+class TestParserRegister(TestCase):
+    def testProperRegexpRetrieving(self):
+        reg = ParserRegister([DummyParser])
+        self.assertEquals(DummyParser, reg.get_parser('(#){4}'))
 
-        r1.add(DummyParser)
-        self.assertRaises(ValueError, lambda:r1.add(DummyParser))
-        self.assertRaises(ValueError, lambda:registry(repr(r1)).addClass(DummyParser))
+        r2 = ParserRegister([DummyParserWithTwoPossibleStarts])
+        self.assertEquals(DummyParserWithTwoPossibleStarts, r2.get_parser('^(####)$'))
+        self.assertEquals(DummyParserWithTwoPossibleStarts, r2.get_parser('^(||||)$'))
 
-        r2.add(DummyParser)
-        self.assertRaises(ValueError, lambda:r2.add(DummyParser))
-        self.assertRaises(ValueError, lambda:registry(repr(r2)).addClass(DummyParser))
+        self.assertRaises(ValueError, lambda:r2.get_parser('some regexp that do not exists'))
 
-class SimpleAddition(TestCase):
-    def setUp(self):
-        self.r = Register()
+    def testRetrievingFromStream(self):
+        reg = ParserRegister([DummyParser])
+        self.assertEquals(reg.resolve_parser('####', Register()).__class__, DummyParser)
 
-    def testAdd(self):
-        self.r.add(DummyParser)
-        self.assertEquals(self.r.parsers_start['^(####)$'], DummyParser)
-
-    def testBadAdd(self):
-        self.assertRaises(ValueError, lambda:self.r.add(NotAllowedParserHavingBadRegexp))
-        self.assertRaises(ValueError, lambda:self.r.add(NotAllowedParserHavingBadRegexp2))
-
-class TestRetrieving(TestCase):
-    def setUp(self):
-        self.r = Register()
-        self.r.add(DummyParser)
-
-        self.r2 = Register([DummyParser])
-
-        self.map = {DummyParser:Register()}
-
-    def testGet(self):
-        self.assertEquals(DummyParser, self.r.get_parser('^(####)$'))
-
-    def testBadGet(self):
-        self.assertRaises(ValueError, lambda:self.r.get_parser('SomeBadRegullarExpressions'))
-
-    def testGet(self):
-        self.assertEquals(DummyMacro, self.r.get_macro('dummy_macro'))
-        self.assertEquals(DummyMacro, self.r2.get_macro('dummy_macro'))
-
-    def testResolver(self):
-        self.assertEquals(isinstance(self.r.resolve_parser('####'), DummyParser), True)
-
-    def testResolverConflicting(self):
-
+    def testResolvingOfOverlappingMacrosFromStream(self):
         class DummyMacroTwo(Macro):
             name = 'dummy_macro_two'
         class DummyParserTwo(Parser):
             start = ['^(#####)$']
             macro = DummyMacroTwo
-            name = 'dummy_macro_two' # remove when bug #2 will be solved
 
-        self.r.add(DummyParserTwo)
-        self.map[DummyParserTwo] = Register()
-        self.assertEquals(isinstance(self.r.resolve_parser('#### 123'), DummyParser), True)
-        self.assertEquals(isinstance(self.r.resolve_parser('#####'), DummyParserTwo), True)
+        reg = ParserRegister([DummyParser, DummyParserTwo])
+        self.assertEquals(reg.resolve_parser('#### 123', Register()).__class__, DummyParser)
+        self.assertEquals(reg.resolve_parser('#####', Register()).__class__, DummyParserTwo)
 
 class TestRegister(TestCase):
-    def testInstanceCreating(self):
-        r = Register([DummyParser])
-        self.assertEquals(DummyParser, r.get_parser('^(####)$'))
 
-        r2 = Register([DummyParserWithTwoPossibleStarts])
-        self.assertEquals(DummyParserWithTwoPossibleStarts, r2.get_parser('^(####)$'))
-        self.assertEquals(DummyParserWithTwoPossibleStarts, r2.get_parser('^(||||)$'))
+    def setUp(self):
+        self.r = Register()
 
-    def testProperHolders(self):
-        reg = Register([DummyParser])
-        self.assertEquals(reg.get_parser_by_macro_name('dummy_macro'), DummyParser)
+    def testMacroHolding(self):
+        self.r.add(DummyMacro)
+        self.assertEquals(DummyMacro, self.r.get_macro('dummy_macro'))
+
+        self.assertEquals((None,None), self.r.resolve_macro('####'))
+        self.r.add_parser(DummyParser)
+        self.assertEquals(DummyMacro, self.r.resolve_macro('####')[0].__class__)
+
+        self.r.add_parser(AnotherDummyParser)
+        self.assertEquals((None,None), self.r.resolve_macro('--'))
+        self.r.add(AnotherDummyMacro)
+        self.assertEquals((None,None), self.r.resolve_macro('--'))
+        self.r.add_parser(AnotherDummyParser)
+        self.assertEquals(AnotherDummyMacro, self.r.resolve_macro('--')[0].__class__)
+
+    def testEasyParserAdding(self):
+        reg = Register([DummyMacro, AnotherDummyMacro], [DummyParser, AnotherDummyParser])
+        self.assertEquals(DummyMacro, reg.resolve_macro('####')[0].__class__)
+        self.assertEquals(AnotherDummyMacro, reg.resolve_macro('--')[0].__class__)
 
 class TestRegisterMap(TestCase):
     def testProperVisit(self):
@@ -149,7 +129,6 @@ class TestRegisterMap(TestCase):
         map = RegisterMap({DummyParser : Register([])})
         self.assertEquals(map[DummyParser].register_map, map)
         self.assertEquals(repr(map[DummyParser].register_map), repr(map))
-
 
 if __name__ == "__main__":
     main()

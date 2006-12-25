@@ -36,12 +36,11 @@ class Macro(object):
     help = """<this macro haven't specified usage example>"""
     parsers_allowed = None
 
-    def __init__(self, parser, register_map):
-        self.parser = parser
+    def __init__(self, register_map):
         self.register_map = register_map
+        self.arguments = []
 
-    @classmethod
-    def parse_argument_string(self, argument_string):
+    def get_argument_list(self, argument_string):
         """ Return list of arguments. Uses ARGUMENT_SEPARATOR as argument separator.
         #TODO:
         By default, closing text in double quotes (") causes treating it as single argument, even if it contains
@@ -50,31 +49,27 @@ class Macro(object):
         """
         return argument_string.split(ARGUMENT_SEPARATOR)
 
-    @classmethod
-    def argument_call(cls, argument_string, register=None, macro_instance=None):
-        """ This function do proper call to expand with properly parsed argument_string.
-        If you want to modify how argument string is parsed, overwrite parse_argument_string classmethod.
-        If macro_instance is not given, macro is instantiazed with parser and register_map extracted
-        from register argument.
-        With or without instance, result of self.expand is returned."""
-        if argument_string is None:
-            argument_string = ''
-        if macro_instance is None:
-            if register is None:
-                raise ValueError, 'Either macro_instance or register must be given for performing argument_call'
-            #FIXME: Parent parser must be known
-            macro_instance = cls(register.get_parser_by_macro_name(cls.name)(argument_string, None, '', register.register_map, register), register.register_map)
-        if argument_string is None:
-            return macro_instance.expand()
-        else:
-            return macro_instance.expand(*cls.parse_argument_string(argument_string))
+    def parse_argument_string(self, argument_string):
+        if argument_string is not None and argument_string is not '':
+            self.arguments = self.get_argument_list(argument_string)
 
-    def expand(self, *args, **kwargs):
+    @classmethod
+    def argument_call(cls, argument_string, register):
+        """ argument_string - string as it would be called by macro syntax
+        returns properly istantiazed macro, ready call expand() function """
+        macro_instance = cls(register.register_map)
+        macro_instance.parse_argument_string(argument_string)
+        return macro_instance
+
+    def expand(self):
+        return self.expand_to_nodes(*self.arguments)
+
+    def expand_to_nodes(self, *args, **kwargs):
         """ Macro with arguments resolved; macro should expand themselves to Nodes and append to DOM """
         raise NotImplementedError
 
     def _get_register(self):
         """ Property function, use .register attribute instead """
-        return self.register_map[self.parser.__class__]
+        return self.register_map[self.__class__]
 
     register = property(fget=_get_register)

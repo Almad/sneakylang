@@ -22,83 +22,46 @@
 import logging
 from re import compile
 
-from classregistry import registry, MasterRegistry, ClassRegistry
 from expanders import Expander
-from macro_caller import get_macro_name
+from macro_caller import get_macro_name, expand_macro_from_stream
 
 class RegisterMap(dict):
+    """ Register map is dictionary holding macro : register_with_allowed_macros pair """
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
-#        self.macro_map = {}
         for k in self:
             self.__after_add(k)
 
     def __after_add(self, k):
         self[k].visit_register_map(self)
-#        self.macro_map[k.macro.name] = self[k]
 
     def __setitem__(self, k, v):
         dict.__setitem__(self, k,v)
         self.__after_add(k)
 
-class Register:
-    def __init__(self, parsersList=None):
-        self.register_map = None
-        self.parsers_start = {}
-        self.parser_name_map = {}
-        self.macro_map = {}
-        self._emptyRegistry()
-        if parsersList is not None:
-            self.add_parsers(parsersList)
+class ParserRegister:
+    """ Parser register is holding parsers (aka 'alternative syntaxes') allowed to use for parsing.
+    ParserRegister is also responsible for resolving those alternative syntaxes in stream """
 
-    def _emptyRegistry(self):
-        MasterRegistry.registries[repr(self)] = ClassRegistry(repr(self))
+    def __init__(self, parsers=None):
+        self.parser_start = {}
+        self.parser_start_compiled = {}
 
-    def _addParser(self, parser):
-        if parser.start is None:
-            return
-        for regexp in parser.start:
-            if not regexp.startswith('^') or not regexp.endswith('$'):
-                raise ValueError, 'Regexp %s must start with ^ and ends with $ - others are not supported; should be, if You post an usecase' % regexp
-            if self.parsers_start.has_key(regexp):
-                raise ValueError, 'Register already contains parser %s starting on %s; %s nod added' % (self.parsers_start[regexp], regexp, parser)
-
-            self.parser_name_map[parser.macro.name] = parser
-            self.parsers_start[regexp] = parser
-        registry(repr(self)).addClass(parser)
-
-    def _addMacro(self, parser):
-        if self.macro_map.has_key(parser.macro.name):
-            raise ValueError, 'Macro %s already added under name %s' % (self.macro_map[parser.macro.name], parser.macro.name)
-        self.macro_map[parser.macro.name] = parser.macro
-
-    def add_parsers(self, parsersList):
-        for p in parsersList:
-            self.add(p)
+        if parsers is not None:
+            for parser in parsers:
+                self.add(parser)
 
     def add(self, parser):
-        self._addParser(parser)
-        self._addMacro(parser)
-
-    def visit_register_map(self, map):
-        self.register_map = map
+        if parser.start is not None:
+            for start in parser.start:
+                self.parser_start[start] = parser
+                self.parser_start_compiled[compile(start)] = parser
 
     def get_parser(self, regexp):
-
-        # should be better then has_key as mostly we will not raise exception
         try:
-            return self.parsers_start[regexp]
+            return self.parser_start[regexp]
         except KeyError:
             raise ValueError, 'No Parser in register starting with %s' % regexp
-
-    def get_macro(self, name):
-        try:
-            return self.macro_map[name]
-        except KeyError:
-            raise ValueError, 'No macro parser registered under name %s in registry' % name
-
-    def get_parser_by_macro_name(self, macro_name):
-        return self.parser_name_map[macro_name]
 
     def _most_matching(self, matching):
         most = None
@@ -109,9 +72,64 @@ class Register:
                 length = len(m.string[m.start():m.end()])
         if most is None:
             return (None, None)
-        return (self.parsers_start[''.join([most.re.pattern, '$'])], m.string[m.start():m.end()])
+        return (self.parser_start[most.re.pattern], m.string[m.start():m.end()])
 
-    def resolve_parser_macro(self, stream, map):
+    def resolve_parser(self, stream, register):
+        """ Resolve parser stream.
+        Return properly initialized parser or None
+        """
+        matching = [parser_start.match(stream) for parser_start in self.parser_start_compiled if parser_start.match(stream)]
+        if len(matching) == 0:
+            return None
+        parser, chunk = self._most_matching(matching)
+        if parser is None or chunk is None:
+            return None
+        return parser(stream, self, chunk, register)
+
+class Register:
+    def __init__(self, macro_list=None, parsers=None):
+        self.register_map = None
+        self.macro_map = {}
+
+        self.parser_register = ParserRegister(parsers)
+
+        if macro_list is not None:
+            self.add_macros(macro_list)
+
+        if parsers is not None:
+            self.add_parsers(parsers)
+
+    def add_macro(self, macro):
+        if self.macro_map.has_key(macro.name):
+            raise ValueError, 'Macro %s already added under name %s' % (self.macro_map[macro.name], macro.name)
+        self.macro_map[macro.name] = macro
+
+    def add_macros(self, macro_list):
+        for p in macro_list:
+            self.add(p)
+
+    def add(self, macro):
+        """ Backward-compatibility symlink, use add_macro instead """
+        self.add_macro(macro)
+
+    def add_parsers(self, parsers):
+        for parser in parsers:
+            self.add_parser(parser)
+
+    def add_parser(self, parser):
+        if parser.macro.name in self.macro_map:
+            self.parser_register.add(parser)
+
+    def visit_register_map(self, register_map):
+        self.register_map = register_map
+
+    def get_macro(self, name):
+        try:
+            return self.macro_map[name]
+        except KeyError:
+            raise ValueError, 'No macro parser registered under name %s in registry' % name
+
+    def resolve_parser_macro(self, stream):
         """ Try resolving parser in macro syntax.
         Return properly initialized parser or None
         """
@@ -124,19 +142,18 @@ class Register:
         else:
             raise ValueError, 'Unexpected exception, please report this as bug'
 
-    def resolve_parser(self, stream):
-        """ Resolve parser from my register_map in stream.
-        Return properly initialized parser or None
-        """
-        if self.register_map is None:
-            logging.info('''Trying to use Register without RegisterMap being set''')
-        matching = [compile(p[:-1]).match(stream) for p in self.parsers_start if compile(p[:-1]).match(stream)]
-        if len(matching) == 0:
-            return None
-        parser, chunk = self._most_matching(matching)
-        if parser is None or chunk is None:
-            return None
-        return parser(stream, self, chunk, self.register_map)
+    def resolve_macro(self, stream):
+        parser = self.parser_register.resolve_parser(stream, self)
+        if parser is not None:
+            macro, stream_new = parser.get_macro()
+            return (macro, stream_new)
+
+        # resolve in macro syntax
+        macro = self.resolve_parser_macro(stream)
+        if macro is not None:
+            return expand_macro_from_stream(stream, self)
+
+        return (None, None)
 
 class ExpanderRegister:
     def __init__(self, expander_map):
