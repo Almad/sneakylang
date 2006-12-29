@@ -47,9 +47,7 @@ class TestSimpleResolving(TestCase):
         self.expanderMap = {
              'docbook5' : {
                  ParagraphNode : ParagraphDocbookExpand,
-                 TextNode : TextNodeExpander,
-                 Strong : StrongDocbookExpander
-             }
+                 TextNode : TextNodeExpander             }
         }
 
     def testProperResolving(self):

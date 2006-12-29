@@ -151,11 +151,7 @@ class Strong(Parser):
         self.stream = self.stream[end.end():]
 
 class ParagraphDocbookExpand(Expander):
-    def expand_to_nodes(self, node, format, node_map):
+    def expand(self, node, format, node_map):
         return ''.join(['<para>'] + [expand(child, format, node_map) for child in node.children] + ['</para>'])
-
-class StrongDocbookExpander(Expander):
-    def expand_to_nodes(self, node, format, node_map):
-        pass
 
 parsers_list = [DummyParser, DummyParserTwo, Paragraph, Nadpis, Strong]

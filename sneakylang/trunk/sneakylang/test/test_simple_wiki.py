@@ -45,11 +45,10 @@ register_map = RegisterMap({
     StrongMacro : Register(parsers=parsers_list)
 })
 
-expander_map = {
+node_map = {
      'docbook5' : {
          ParagraphNode : ParagraphDocbookExpand,
-         TextNode : TextNodeExpander,
-         Strong : StrongDocbookExpander
+         TextNode : TextNodeExpander
      }
 }
 ### End of definition
@@ -99,14 +98,14 @@ class TestExpand(TestCase):
         tn = TextNode()
         tn.content = 'content'
         p.children.append(tn)
-        self.assertEquals(expand(p, 'docbook5', expander_map), '<para>content</para>')
+        self.assertEquals(expand(p, 'docbook5', node_map), '<para>content</para>')
 
-    def testExpandFromTree(self):
+    def testExpandFromTreeWithEntitiesEnabled(self):
         p = ParagraphNode()
         tn = TextNode()
         tn.content = '<b>not bold</b>'
         p.children.append(tn)
-        self.assertEquals(expand(p, 'docbook5', expander_map), '<para>&lt;b&gt;not bold&lt;/b&gt;</para>')
+        self.assertEquals(expand(p, 'docbook5', node_map), '<para>&lt;b&gt;not bold&lt;/b&gt;</para>')
 
 if __name__ == "__main__":
     main()
