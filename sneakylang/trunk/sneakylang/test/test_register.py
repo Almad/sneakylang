@@ -104,6 +104,9 @@ class TestRegister(TestCase):
         self.r.add(DummyMacro)
         self.assertEquals(DummyMacro, self.r.get_macro('dummy_macro'))
 
+        self.r.add_parser(AnotherDummyParser)
+        self.assertEquals(False, AnotherDummyParser.start[0] in self.r.parser_register.parser_start)
+
         self.assertEquals((None,None), self.r.resolve_macro('####'))
         self.r.add_parser(DummyParser)
         self.assertEquals(DummyMacro, self.r.resolve_macro('####')[0].__class__)
@@ -119,6 +122,17 @@ class TestRegister(TestCase):
         reg = Register([DummyMacro, AnotherDummyMacro], [DummyParser, AnotherDummyParser])
         self.assertEquals(DummyMacro, reg.resolve_macro('####')[0].__class__)
         self.assertEquals(AnotherDummyMacro, reg.resolve_macro('--')[0].__class__)
+
+    def testNotAddingParserWhichHasNotMacroAlreadyInRegister(self):
+        reg = Register([DummyMacro], [DummyParser])
+        self.assertEquals(False, AnotherDummyParser.start[0] in reg.parser_register.parser_start)
+        self.assertEquals((None, None), reg.resolve_macro('--'))
+
+    def testNotAddingParserWhichHasNotMacroAlreadyInRegisterWithEasyAdding(self):
+        reg = Register([DummyMacro], [DummyParser, AnotherDummyParser])
+        self.assertEquals(False, AnotherDummyParser.start[0] in reg.parser_register.parser_start)
+        self.assertEquals((None, None), reg.resolve_macro('--'))
+
 
 class TestRegisterMap(TestCase):
     def testProperVisit(self):

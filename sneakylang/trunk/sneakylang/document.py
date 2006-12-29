@@ -33,11 +33,10 @@ class Document(Macro):
     name = 'document'
     help = '<toto makro se nikdy nepouziva explicitne>'
 
-    @classmethod
     def parse_argument_string(self, argument_string):
-        return (argument_string,)
-    
-    def expand(self, content):
+        self.arguments = [argument_string]
+
+    def expand_to_nodes(self, content):
         doc = DocumentNode()
         logging.debug('Creating document node and parsing document')
         res = parse(content, self.register_map, self.register)
@@ -51,8 +50,8 @@ class DocumentParser(Parser):
     start = None
     macro = Document
 
-    def resolve_content(self):
-        self.args = self.stream
+    def resolve_argument_string(self):
+        self.argument_string = self.stream
         self.stream = ''
 
 #    def call_macro(self):

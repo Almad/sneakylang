@@ -91,7 +91,7 @@ class Register:
         self.register_map = None
         self.macro_map = {}
 
-        self.parser_register = ParserRegister(parsers)
+        self.parser_register = ParserRegister()
 
         if macro_list is not None:
             self.add_macros(macro_list)

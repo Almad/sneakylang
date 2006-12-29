@@ -70,7 +70,7 @@ class Parser(object):
         return (self._get_macro(), self.stream)
 
     def parse(self):
-        macro = self.get_macro()
+        macro, self.stream = self.get_macro()
         return macro.expand()
 #        self.dom_tree = self.call_macro()
 #        return self.dom_tree
