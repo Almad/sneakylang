@@ -95,6 +95,17 @@ class TestParserRegister(TestCase):
         self.assertEquals(reg.resolve_parser('#### 123', Register()).__class__, DummyParser)
         self.assertEquals(reg.resolve_parser('#####', Register()).__class__, DummyParserTwo)
 
+    def testResolvingOfOverlappingMacrosFromStreamGivenInOtherOrder(self):
+        class DummyMacroTwo(Macro):
+            name = 'dummy_macro_two'
+        class DummyParserTwo(Parser):
+            start = ['^(#####)$']
+            macro = DummyMacroTwo
+
+        reg = ParserRegister([DummyParserTwo, DummyParser])
+        self.assertEquals(reg.resolve_parser('#### 123', Register()).__class__, DummyParser)
+        self.assertEquals(reg.resolve_parser('#####', Register()).__class__, DummyParserTwo)
+
 class TestRegister(TestCase):
 
     def setUp(self):

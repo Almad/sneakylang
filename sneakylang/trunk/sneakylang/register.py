@@ -55,7 +55,7 @@ class ParserRegister:
         if parser.start is not None:
             for start in parser.start:
                 self.parser_start[start] = parser
-                self.parser_start_compiled[compile(start)] = parser
+                self.parser_start_compiled[compile(''.join(['^', start]))] = parser
 
     def get_parser(self, regexp):
         try:
@@ -64,6 +64,7 @@ class ParserRegister:
             raise ValueError, 'No Parser in register starting with %s' % regexp
 
     def _most_matching(self, matching):
+        """ Return most matching parser and chunk on which it's resolved """
         most = None
         length = 0
         for m in matching:
@@ -72,7 +73,7 @@ class ParserRegister:
                 length = len(m.string[m.start():m.end()])
         if most is None:
             return (None, None)
-        return (self.parser_start[most.re.pattern], m.string[m.start():m.end()])
+        return (self.parser_start[most.re.pattern[1:]], most.string[most.start():most.end()])
 
     def resolve_parser(self, stream, register):
         """ Resolve parser stream.
