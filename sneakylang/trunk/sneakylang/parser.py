@@ -94,7 +94,14 @@ def _get_text_node(stream, register, register_map, force_first_char=False, opene
         tn.content = ''.join([tn.content, stream[0:1]])
         stream = stream[1:]
 
-    while register.resolve_macro(stream) == (None, None):
+    while True:
+        try:
+            res = register.resolve_macro(stream)
+        except ParserRollback:
+            pass
+        else:
+            if res != (None, None):
+                break
         if len(stream) == 0:
             break
         tn.content = ''.join([tn.content, stream[0:1]])

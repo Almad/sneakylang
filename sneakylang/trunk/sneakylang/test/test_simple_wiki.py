@@ -36,14 +36,14 @@ from sneakylang.err import ParserRollback
 from sneakylang.macro import Macro
 from sneakylang.node import Node, TextNode
 from sneakylang.parser import *
-from sneakylang.register import Register
+from sneakylang.register import Register, RegisterMap
 from sneakylang.expanders import Expander, expand, TextNodeExpander
 
 
-register_map = {
-    Paragraph : Register([Strong]),
-    Strong : Register()
-}
+register_map = RegisterMap({
+    ParagraphMacro : Register([StrongMacro], parsers_list),
+    StrongMacro : Register(parsers=parsers_list)
+})
 
 expander_map = {
      'docbook5' : {
@@ -56,40 +56,36 @@ expander_map = {
 
 
 class TestParsing(TestCase):
-    def setUp(self):
-        self.reg = Register()
-        self.reg.add(Paragraph)
-        self.reg.add(Strong)
 
-    def testSimplestPara(self):
+    def testSimplestParaWithoutEnd(self):
         s = '''\n\nParagraph'''
-        o = parse(s, register_map)
+        o = parse(s, register_map, parsers=parsers_list)
         self.assertEquals(len(o), 1)
-        self.assertEquals(isinstance(o[0], ParagraphNode), True)
+        self.assertEquals(o[0].__class__, ParagraphNode)
         self.assertEquals(isinstance(o[0].children[0], TextNode), True)
         self.assertEquals(o[0].children[0].content, 'Paragraph')
 
     def testSimplestParaWithEnd(self):
         s = '''\n\nParagraph\n\n'''
-        o = parse(s, register_map)
+        o = parse(s, register_map, parsers=parsers_list)
         self.assertEquals(len(o), 1)
-        self.assertEquals(isinstance(o[0], ParagraphNode), True)
+        self.assertEquals(o[0].__class__, ParagraphNode)
         self.assertEquals(isinstance(o[0].children[0], TextNode), True)
         self.assertEquals(o[0].children[0].content, 'Paragraph')
 
     def testSimplestParaWithNoStrong(self):
         s = '''\n\nParagraph "" not strong, sorry ,)'''
-        o = parse(s, register_map)
+        o = parse(s, register_map, parsers=parsers_list)
         self.assertEquals(len(o), 1)
-        self.assertEquals(isinstance(o[0], ParagraphNode), True)
+        self.assertEquals(o[0].__class__, ParagraphNode)
         self.assertEquals(isinstance(o[0].children[0], TextNode), True)
         self.assertEquals(o[0].children[0].content, 'Paragraph "" not strong, sorry ,)')
 
     def testParaWithStrong(self):
         s = '''\n\nParagraph ""strong""'''
-        o = parse(s, register_map)
+        o = parse(s, register_map, parsers=parsers_list)
         self.assertEquals(len(o), 1)
-        self.assertEquals(isinstance(o[0], ParagraphNode), True)
+        self.assertEquals(o[0].__class__, ParagraphNode)
         self.assertEquals(len(o[0].children), 2)
         self.assertEquals(isinstance(o[0].children[0], TextNode), True)
         self.assertEquals(o[0].children[0].content, 'Paragraph ')

@@ -46,11 +46,11 @@ class DummyNode(Node):
     name = 'dummy node'
 
 class DummyParser(Parser):
-    start = ['^(####)$']
+    start = ['(####)']
     macro = DummyMacro
 
 class DummyParserTwo(Parser):
-    start = ['^(#####)$']
+    start = ['(#####)']
     macro = DummyMacro
 
 class NadpisMacro(Macro):
@@ -61,10 +61,10 @@ class NadpisMacro(Macro):
 
 # parser borrowed from czechtile
 class Nadpis(Parser):
-    start = ['^(\n)?(=){1,5}(\ ){1}$']
+    start = ['(\n)?(=){1,5}(\ ){1}']
     macro = NadpisMacro
 
-    def resolve_content(self):
+    def resolve_argument_string(self):
         endPattern = self.chunk[:-1]
         if endPattern.startswith('\n'):
             endPattern = endPattern[1:]
@@ -108,11 +108,11 @@ class ParagraphMacro(Macro):
         return p
 
 class Paragraph(Parser):
-    start = ['^(\n){2}$']
+    start = ['(\n){2}']
     macro = ParagraphMacro
     end = '(\n){2}'
 
-    def resolve_content(self):
+    def resolve_argument_string(self):
         end = re.search(self.__class__.end, self.stream)
         if end:
             self.argument_string = self.stream[0:end.start()]
@@ -136,11 +136,11 @@ class StrongMacro(Macro):
         return n
 
 class Strong(Parser):
-    start = ['^("){2}$']
+    start = ['("){2}']
     macro = StrongMacro
     end = '("){2}'
 
-    def resolve_content(self):
+    def resolve_argument_string(self):
         s = self.stream
         end = re.search(self.__class__.end, s)
         if not end:
@@ -157,3 +157,5 @@ class ParagraphDocbookExpand(Expander):
 class StrongDocbookExpander(Expander):
     def expand_to_nodes(self, node, format, node_map):
         pass
+
+parsers_list = [DummyParser, DummyParserTwo, Paragraph, Nadpis, Strong]
