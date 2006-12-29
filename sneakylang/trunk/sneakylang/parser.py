@@ -117,24 +117,24 @@ def parse(stream, register_map, register=None, parsers=None):
     opened_text_node = None
     nodes = []
     while len(stream) > 0:
-        macro, stream_new = register.resolve_macro(stream)
-        if macro is not None and stream_new is not None:
-            logging.debug('Resolved macro %s' % macro)
-            try:
+        try:
+            macro, stream_new = register.resolve_macro(stream)
+            if macro is not None and stream_new is not None:
+                logging.debug('Resolved macro %s' % macro)
                 res = macro.expand()
                 logging.debug('Appending %s' % res)
                 nodes.append(res)
                 stream = stream_new
                 opened_text_node = None
-            except ParserRollback:
-                logging.debug('Catched ParseRollback, forcing text char')
-                node, stream = _get_text_node(stream, register, register_map, True, opened_text_node=opened_text_node)
+            else:
+                logging.debug('Parser is None (not resolved), adding TextNode.')
+                node, stream = _get_text_node(stream, register, register_map, opened_text_node=opened_text_node)
                 if opened_text_node is None:
                     nodes.append(node)
                 opened_text_node=node
-        else:
-            logging.debug('Parser is None (not resolved), adding TextNode.')
-            node, stream = _get_text_node(stream, register, register_map, opened_text_node=opened_text_node)
+        except ParserRollback:
+            logging.debug('Catched ParseRollback, forcing text char')
+            node, stream = _get_text_node(stream, register, register_map, True, opened_text_node=opened_text_node)
             if opened_text_node is None:
                 nodes.append(node)
             opened_text_node=node
