@@ -134,11 +134,11 @@ class Register:
         """ Try resolving parser in macro syntax.
         Return properly initialized parser or None
         """
-        logging.debug('Trying to resolve macro in stream')
+#        logging.debug('Trying to resolve macro in stream')
         try:
             return self.macro_map[get_macro_name(stream, self)]
         except KeyError:
-            logging.debug('Macro name %s not in my macro_map' % get_macro_name(stream,self))
+#            logging.debug('Macro name %s not in my macro_map' % get_macro_name(stream,self))
             return None
         else:
             raise ValueError, 'Unexpected exception, please report this as bug'

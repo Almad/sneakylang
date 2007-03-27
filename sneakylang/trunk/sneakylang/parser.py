@@ -127,7 +127,7 @@ def parse(stream, register_map, register=None, parsers=None):
                 stream = stream_new
                 opened_text_node = None
             else:
-                logging.debug('Parser is None (not resolved), adding TextNode.')
+#               logging.debug('Parser is None (not resolved), adding TextNode.')
                 node, stream = _get_text_node(stream, register, register_map, opened_text_node=opened_text_node)
                 if opened_text_node is None:
                     nodes.append(node)
