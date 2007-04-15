@@ -92,6 +92,12 @@ class TestParsing(TestCase):
         self.assertEquals(isinstance(o[0].children[1].children[0], TextNode), True)
         self.assertEquals(o[0].children[1].children[0].content, 'strong')
 
+#class TestNodeDisplaying(TestCase):
+#    def testDisplay(self):
+#        s = '''\n\nParagraph ""strong""'''
+#        o = parse(s, register_map, parsers=parsers_list)
+#        self.assertEquals('[[Paragraph][[Strong]]]', str(o))
+
 class TestExpand(TestCase):
     def testExpandFromTree(self):
         p = ParagraphNode()

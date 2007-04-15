@@ -5,7 +5,7 @@
 
 ###
 # SneakyLang: Extensible WikiFramework
-#Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
+#Copyright (C) 2007 Lukas "Almad" Linhart http://www.almad.net/
 # and contributors, for complete list see
 # http://projects.almad.net/czechtile/wiki/Contributors
 #
@@ -30,9 +30,8 @@ import logging
 from expanders import *
 
 class Node:
-
-    def __init__(self, parent=None):
-        self.parent = parent
+    def __init__(self):
+        self.parent = None
         self.children = []
         self.actual_text_content = None # actual TextNode to fill data in
 
@@ -40,17 +39,21 @@ class Node:
         if not isinstance(node, Node):
             raise ValueError, 'Child of node must be instance of Node'
         if isinstance(node, TextNode):
+            if self.actual_text_content is not None:
+                raise ValueError, 'Adding a text node, but one is alread present'
             self.actual_text_content = node
         else:
             self.actual_text_content = None
         self.children.append(node)
+        # visit node as parent
+        node.parent = self
 
-    def add_text_tontent(self, stream):
-        if self.actual_text_content is None:
-            self.add_child(TextNode(parent=self, chunk=None))
-
-        self.actual_text_content.add_char(stream[0:1])
-        return stream[1:]
+#    def add_text_content(self, stream):
+#        if self.actual_text_content is None:
+#            self.add_child(TextNode(parent=self, chunk=None))
+#
+#        self.actual_text_content.add_char(stream[0:1])
+#        return stream[1:]
 
     def expand(self, format):
         for child in self.childs:
@@ -60,6 +63,8 @@ class Node:
             if not self.expanders.has_key(format):
                 raise NotImplementedError, "Macro %s does not support transformation to %s" % (self.name, format)
             self.expanders[format].expand(self.text_content)
+#    def __str__(self):
+#        return ''.join(['['] + [str(child) for child in self.children] + [']'])
 
 class TextNode(Node):
     """ Special Node holding text.
@@ -73,3 +78,6 @@ class TextNode(Node):
 
     def add_char(self, char):
         self.content = ''.join([self.content, str(char)])
+    
+#    def __str__(self):
+#        return str(self.content)

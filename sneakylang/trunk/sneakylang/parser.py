@@ -5,7 +5,7 @@
 
 ###
 # SneakyLang: Extensible WikiFramework
-#Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
+#Copyright (C) 2007 Lukas "Almad" Linhart http://www.almad.net/
 # and contributors, for complete list see
 # http://projects.almad.net/c~/projects/sneakylang/sneakylang/testzechtile/wiki/Contributors
 #
@@ -26,7 +26,7 @@
 
 import logging
 
-from err import ParserRollback
+from err import ParserRollback, MacroCallError
 
 import macro
 from node import TextNode
@@ -97,7 +97,7 @@ def _get_text_node(stream, register, register_map, force_first_char=False, opene
     while True:
         try:
             res = register.resolve_macro(stream)
-        except ParserRollback:
+        except (ParserRollback, MacroCallError):
             pass
         else:
             if res != (None, None):
@@ -108,6 +108,9 @@ def _get_text_node(stream, register, register_map, force_first_char=False, opene
         stream = stream[1:]
     return (tn, stream)
 
+#TODO: Reduce this as constant
+NEGATION="!"
+
 def parse(stream, register_map, register=None, parsers=None):
     if register is None:
         register = Register([p for p in register_map])
@@ -115,6 +118,7 @@ def parse(stream, register_map, register=None, parsers=None):
         if parsers is not None:
             register.add_parsers(parsers)
     opened_text_node = None
+    negation_buffer = None
     nodes = []
     while len(stream) > 0:
         try:
@@ -127,12 +131,13 @@ def parse(stream, register_map, register=None, parsers=None):
                 stream = stream_new
                 opened_text_node = None
             else:
-#               logging.debug('Parser is None (not resolved), adding TextNode.')
+                # parser not resolved, add text node
                 node, stream = _get_text_node(stream, register, register_map, opened_text_node=opened_text_node)
                 if opened_text_node is None:
                     nodes.append(node)
                 opened_text_node=node
-        except ParserRollback:
+        except (ParserRollback, MacroCallError):
+            #badly resolved macro
             logging.debug('Catched ParseRollback, forcing text char')
             node, stream = _get_text_node(stream, register, register_map, True, opened_text_node=opened_text_node)
             if opened_text_node is None:

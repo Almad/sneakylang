@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" Test macro syntax, now being build-in into main parser """
+""" Test Parsers
+"""
 
 ###
 # SneakyLang: Extensible WikiFramework
@@ -30,13 +31,17 @@ import logging
 import re
 
 from unittest import main,TestCase
+
 from module_test import *
+from sneakylang import parse, RegisterMap, Document
 
 #logging.basicConfig(level=logging.DEBUG)
 
-from sneakylang import parse, RegisterMap, Document
+class TestParserNegation(TestCase):
+    def testNegateStrong(self):
+        pass
 
-class TestSimpleResolving(TestCase):
+class TestMacroNegation(TestCase):
     def setUp(self):
         self.register_map = RegisterMap({
             ParagraphMacro : Register([StrongMacro]),
@@ -50,30 +55,13 @@ class TestSimpleResolving(TestCase):
                  TextNode : TextNodeExpander             }
         }
 
-    def testProperResolving(self):
-        s = '((odstavec text odstavce))'
+    def testNegateStrong(self):
+        s = '!((odstavec text odstavce))'
         o = parse(s, self.register_map)
         self.assertEquals(len(o), 1)
         self.assertEquals(o[0].__class__, ParagraphNode)
         self.assertEquals(o[0].children[0].__class__, TextNode)
-        self.assertEquals(o[0].children[0].content, 'text odstavce')
-        # nefunguje, nutne udelat parsovani vnorenych maker
-#        s = '((odstavec ((silne silny)) text odstavce))'
-#        o = parse(s, self.register_map)
-#        self.assertEquals(len(o), 1)
-#        self.assertEquals(o[0].__class__, ParagraphNode)
-#        self.assertEquals(o[0].children[0].__class__, Strong)
-#        self.assertEquals(o[0].children[0].children[0].__class__, TextNode)
-#        self.assertEquals(o[0].children[0].children[0].content, 'silny')
-#        self.assertEquals(o[0].children[1].__class__, TextNode)
-#        self.assertEquals(o[0].children[1].content, ' text odstavce')
-    
-    def testBadCall(self):
-        s = '((odstavec))'
-        o = parse(s, self.register_map)
-        self.assertEquals(len(o), 1)
-        self.assertEquals(o[0].__class__, TextNode)
-        self.assertEquals(o[0].content, '((odstavec))')
+        self.assertEquals(o[0].children[0].content, '((odstavec text odstavce))')
 
 if __name__ == "__main__":
     main()

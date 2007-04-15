@@ -4,7 +4,7 @@
 
 ###
 # SneakyLang: Extensible WikiFramework
-#Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
+# Copyright (C) 2007 Lukas "Almad" Linhart http://www.almad.net/
 # and contributors, for complete list see
 # http://projects.almad.net/sneakylang/wiki/Contributors
 #
@@ -62,7 +62,11 @@ class Macro(object):
         return macro_instance
 
     def expand(self):
-        return self.expand_to_nodes(*self.arguments)
+        try:
+            return self.expand_to_nodes(*self.arguments)
+        except TypeError, err:
+            raise MacroCallError, err
+        
 
     def expand_to_nodes(self, *args, **kwargs):
         """ Macro with arguments resolved; macro should expand themselves to Nodes and append to DOM """

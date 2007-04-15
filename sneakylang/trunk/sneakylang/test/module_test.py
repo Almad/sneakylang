@@ -40,7 +40,7 @@ class DummyMacro(Macro):
     name = 'dummy_macro'
 
     def expand_to_nodes(self, *args):
-        return DummyNode(None)
+        return DummyNode()
 
 class DummyNode(Node):
     name = 'dummy node'
@@ -57,7 +57,7 @@ class NadpisMacro(Macro):
     name = 'nadpis'
 
     def expand_to_nodes(self, *args):
-        return DummyNode(None)
+        return DummyNode()
 
 # parser borrowed from czechtile
 class Nadpis(Parser):

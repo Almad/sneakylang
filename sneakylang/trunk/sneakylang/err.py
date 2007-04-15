@@ -5,7 +5,7 @@
 
 ###
 # SneakyLang: Extensible WikiFramework
-#Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
+#Copyright (C) 2007 Lukas "Almad" Linhart http://www.almad.net/
 # and contributors, for complete list see
 # http://projects.almad.net/czechtile/wiki/Contributors
 #
@@ -33,3 +33,4 @@ class ParserRollback(Error):
     """ Parser has taken activity, but decided that it's not its turn.
     Result should be that first char of chunk is treated as TextNode
     and main parser is proceeding """
+    
