@@ -36,7 +36,7 @@ class Document(Macro):
     def parse_argument_string(self, argument_string):
         self.arguments = [argument_string]
 
-    def expand_to_nodes(self, content):
+    def expand_to_nodes(self, content, **kwargs):
         doc = DocumentNode()
         logging.debug('Creating document node and parsing document')
         res = parse(content, self.register_map, self.register)

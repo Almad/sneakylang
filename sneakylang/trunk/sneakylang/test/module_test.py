@@ -39,7 +39,7 @@ from sneakylang.expanders import Expander, expand, TextNodeExpander
 class DummyMacro(Macro):
     name = 'dummy_macro'
 
-    def expand_to_nodes(self, *args):
+    def expand_to_nodes(self, *args, **kwargs):
         return DummyNode()
 
 class DummyNode(Node):
@@ -56,7 +56,7 @@ class DummyParserTwo(Parser):
 class NadpisMacro(Macro):
     name = 'nadpis'
 
-    def expand_to_nodes(self, *args):
+    def expand_to_nodes(self, *args, **kwargs):
         return DummyNode()
 
 # parser borrowed from czechtile
@@ -97,7 +97,7 @@ class ParagraphMacro(Macro):
     def get_argument_list(self, argument_string):
         return [argument_string]
 
-    def expand_to_nodes(self, content):
+    def expand_to_nodes(self, content, **kwargs):
         p = ParagraphNode()
         logging.debug('Parsing paragraph content')
         nodes = parse(content, self.register_map, self.register)
@@ -128,7 +128,19 @@ class StrongMacro(Macro):
     name = 'silne'
     help = '((silne zesileny text))'
 
-    def expand_to_nodes(self, content):
+    def expand_to_nodes(self, content, **kwargs):
+        n = StrongNode()
+        tn = TextNode()
+        tn.content = content
+        n.add_child(tn)
+        return n
+
+class StrongVistingMacro(Macro):
+    name = 'silne'
+    help = '((silne zesileny text))'
+
+    def expand_to_nodes(self, content, state, **kwargs):
+        state.visit(self)
         n = StrongNode()
         tn = TextNode()
         tn.content = content

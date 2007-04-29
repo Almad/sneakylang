@@ -37,31 +37,32 @@ from sneakylang import parse, RegisterMap, Document
 
 #logging.basicConfig(level=logging.DEBUG)
 
-class TestParserNegation(TestCase):
-    def testNegateStrong(self):
-        pass
-
-class TestMacroNegation(TestCase):
-    def setUp(self):
-        self.register_map = RegisterMap({
-            ParagraphMacro : Register([StrongMacro]),
-            StrongMacro : Register([]),
-            Document : Register([ParagraphMacro])
-        })
-
-        self.expanderMap = {
-             'docbook5' : {
-                 ParagraphNode : ParagraphDocbookExpand,
-                 TextNode : TextNodeExpander             }
-        }
-
-    def testNegateStrong(self):
-        s = '!((odstavec text odstavce))'
-        o = parse(s, self.register_map)
-        self.assertEquals(len(o), 1)
-        self.assertEquals(o[0].__class__, ParagraphNode)
-        self.assertEquals(o[0].children[0].__class__, TextNode)
-        self.assertEquals(o[0].children[0].content, '((odstavec text odstavce))')
+###TODO: Negation not in plan yet
+#class TestParserNegation(TestCase):
+#    def testNegateStrong(self):
+#        pass
+#
+#class TestMacroNegation(TestCase):
+#    def setUp(self):
+#        self.register_map = RegisterMap({
+#            ParagraphMacro : Register([StrongMacro]),
+#            StrongMacro : Register([]),
+#            Document : Register([ParagraphMacro])
+#        })
+#
+#        self.expanderMap = {
+#             'docbook5' : {
+#                 ParagraphNode : ParagraphDocbookExpand,
+#                 TextNode : TextNodeExpander             }
+#        }
+#
+#    def testNegateStrong(self):
+#        s = '!((odstavec text odstavce))'
+#        o = parse(s, self.register_map)
+#        self.assertEquals(len(o), 1)
+#        self.assertEquals(o[0].__class__, ParagraphNode)
+#        self.assertEquals(o[0].children[0].__class__, TextNode)
+#        self.assertEquals(o[0].children[0].content, '((odstavec text odstavce))')
 
 if __name__ == "__main__":
     main()

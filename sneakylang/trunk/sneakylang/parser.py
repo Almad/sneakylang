@@ -111,7 +111,7 @@ def _get_text_node(stream, register, register_map, force_first_char=False, opene
 #TODO: Reduce this as constant
 NEGATION="!"
 
-def parse(stream, register_map, register=None, parsers=None):
+def parse(stream, register_map, register=None, parsers=None, state=None):
     if register is None:
         register = Register([p for p in register_map])
         register.visit_register_map(register_map)
@@ -125,7 +125,7 @@ def parse(stream, register_map, register=None, parsers=None):
             macro, stream_new = register.resolve_macro(stream)
             if macro is not None and stream_new is not None:
                 logging.debug('Resolved macro %s' % macro)
-                res = macro.expand()
+                res = macro.expand(state=state)
                 logging.debug('Appending %s' % res)
                 nodes.append(res)
                 stream = stream_new

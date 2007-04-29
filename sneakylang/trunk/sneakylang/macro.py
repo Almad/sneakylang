@@ -61,12 +61,12 @@ class Macro(object):
         macro_instance.parse_argument_string(argument_string)
         return macro_instance
 
-    def expand(self):
+    def expand(self, **kwargs):
         try:
-            return self.expand_to_nodes(*self.arguments)
+            return self.expand_to_nodes(*self.arguments, **kwargs)
         except TypeError, err:
             raise MacroCallError, err
-        
+
 
     def expand_to_nodes(self, *args, **kwargs):
         """ Macro with arguments resolved; macro should expand themselves to Nodes and append to DOM """
