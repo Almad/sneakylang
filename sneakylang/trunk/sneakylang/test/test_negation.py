@@ -30,7 +30,7 @@ sys.path.insert(0, join(pardir, pardir))
 import logging
 import re
 
-from unittest import main,TestCase
+from unittest import main,TestCase, TestSuite
 
 from module_test import *
 from sneakylang import parse, RegisterMap, Document

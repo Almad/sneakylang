@@ -29,7 +29,7 @@ import sys
 sys.path.insert(0, join(pardir, pardir))
 import logging
 
-from unittest import main,TestCase
+from unittest import main,TestCase, TestSuite
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -41,7 +41,7 @@ from sneakylang.treebuilder import *
 class TestSupportedMethods(TestCase):
     def setUp(self):
         self.builder = TreeBuilder()
-    
+
     def testNodeAdding(self):
         n1 = DummyNode()
         n2 = DummyNode()
@@ -51,7 +51,7 @@ class TestSupportedMethods(TestCase):
         self.assertEquals(self.builder.actual_node, n2)
         self.assertEquals(self.builder.actual_node.parent, n1)
         self.assertEquals(n2, n1.children[0])
-    
+
     def testTreeTraversing(self):
         n1 = DummyNode()
         n2 = DummyNode()
@@ -59,7 +59,6 @@ class TestSupportedMethods(TestCase):
         self.builder.append(n2, move_actual=True)
         self.builder.move_up()
         self.assertEquals(n1, self.builder.actual_node)
-    
-    
+
 if __name__ == "__main__":
     main()
