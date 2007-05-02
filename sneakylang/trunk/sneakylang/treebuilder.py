@@ -19,12 +19,23 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ###
 
+def root_required(fn):
+    """ Decorator for administrator authorization
+    """
+    def _innerWrapper(self, *args, **kwargs):
+        if self.root is None:
+            raise ValueError, "For this operation, root for treebuilder must be set"
+        return fn(self, *args, **kwargs)
+    return _innerWrapper
+
+
 class TreeBuilder(object):
-    def __init__(self):
-        self.tree = []
+    def __init__(self, root=None):
+        self.root = root
         # pointer to actual node
-        self._actual_node = None
-    
+        self._actual_node = root
+
+    @root_required
     def append(self, node, move_actual=False):
         if self._actual_node is None:
             self.tree.append(node)
@@ -32,14 +43,19 @@ class TreeBuilder(object):
             self._actual_node.add_child(node)
         if move_actual is True:
             self._actual_node = node
-            
+
+    @root_required
     def move_up(self):
         if self.actual_node.parent is None:
             raise ValueError, 'Cannot move up as there is no parent of current node'
         else:
             self._actual_node = self.actual_node.parent
-        
+
+    def set_root(self, node):
+        self.root = node
+        self._actual_node = node
+
     def get_actual_node(self):
         return self._actual_node
-    
+
     actual_node = property(fget=get_actual_node)

@@ -45,10 +45,13 @@ class TestSupportedMethods(TestCase):
     def setUp(self):
         self.builder = TreeBuilder()
 
+    def testTreeAppendingWithoutRoot(self):
+        self.assertRaises(ValueError, lambda:self.builder.append(DummyNode()))
+
     def testNodeAdding(self):
         n1 = DummyNode()
         n2 = DummyNode()
-        self.builder.append(n1, move_actual=True)
+        self.builder.set_root(n1)
         self.assertEquals(self.builder.actual_node, n1)
         self.builder.append(n2, move_actual=True)
         self.assertEquals(self.builder.actual_node, n2)
@@ -59,7 +62,7 @@ class TestSupportedMethods(TestCase):
         n1 = DummyNode()
         n2 = DummyNode()
         n3 = DummyNode()
-        self.builder.append(n1, move_actual=True)
+        self.builder.set_root(n1)
         self.assertEquals(n1, self.builder.actual_node)
         self.builder.append(n2, move_actual=True)
         self.builder.move_up()

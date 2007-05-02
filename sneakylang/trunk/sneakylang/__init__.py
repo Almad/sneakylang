@@ -2,7 +2,7 @@
 
 """ SneakyLang: Extensible WikiFramework """
 
-__version__ = "0.2"
+__version__ = "0.3"
 
 ###
 # SneakyLang: Extensible WikiFramework

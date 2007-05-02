@@ -115,6 +115,10 @@ NEGATION="!"
 def parse(stream, register_map, register=None, parsers=None, state=None, builder=None):
     if builder is None:
         builder = TreeBuilder()
+    if builder.root is None:
+        from document import DocumentNode
+        builder.set_root(DocumentNode())
+
     if register is None:
         register = Register([p for p in register_map])
         register.visit_register_map(register_map)

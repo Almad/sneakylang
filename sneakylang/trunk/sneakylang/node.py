@@ -36,8 +36,9 @@ class Node:
         self.actual_text_content = None # actual TextNode to fill data in
 
     def add_child(self, node):
-        if not isinstance(node, Node):
-            raise ValueError, 'Child of node must be instance of Node'
+        # It's Python, we use implicit interfaces - isinstance considered harmful
+#        if not isinstance(node, Node):
+#            raise ValueError, 'Child of node must be instance of Node'
         if isinstance(node, TextNode):
             if self.actual_text_content is not None:
                 raise ValueError, 'Adding a text node, but one is alread present'
@@ -78,6 +79,6 @@ class TextNode(Node):
 
     def add_char(self, char):
         self.content = ''.join([self.content, str(char)])
-    
+
 #    def __str__(self):
 #        return str(self.content)
