@@ -109,45 +109,61 @@ def _get_text_node(stream, register, register_map, builder, state, force_first_c
         stream = stream[1:]
     return (tn, stream)
 
-#TODO: Reduce this as constant
-NEGATION="!"
-
-def parse(stream, register_map, register=None, parsers=None, state=None, builder=None):
+def parse(stream, register_map, register=None, parsers=None, state=None, builder=None, document_root=False):
     if builder is None:
         builder = TreeBuilder()
+
     if builder.root is None:
-        from document import DocumentNode
-        builder.set_root(DocumentNode())
+        if document_root is True:
+            from document import DocumentNode
+            builder.set_root(DocumentNode())
+            hack_root = False
+        else:
+            from node import Node
+            builder.set_root(Node())
+            hack_root = True
+    else:
+        hack_root = False
+
+    remembered_actual_node = builder.actual_node
 
     if register is None:
         register = Register([p for p in register_map])
         register.visit_register_map(register_map)
         if parsers is not None:
             register.add_parsers(parsers)
+
     opened_text_node = None
-    negation_buffer = None
-    nodes = []
+
     while len(stream) > 0:
         try:
             macro, stream_new = register.resolve_macro(stream, builder, state)
             if macro is not None and stream_new is not None:
                 logging.debug('Resolved macro %s' % macro)
-                res = macro.expand(builder=builder, state=state)
-                logging.debug('Appending %s' % res)
-                nodes.append(res)
+                macro.expand(builder=builder, state=state)
                 stream = stream_new
                 opened_text_node = None
             else:
                 # parser not resolved, add text node
                 node, stream = _get_text_node(stream, register, register_map, builder, state, opened_text_node=opened_text_node)
                 if opened_text_node is None:
-                    nodes.append(node)
+                    builder.append(node, move_actual=False)
                 opened_text_node=node
         except (ParserRollback, MacroCallError):
             #badly resolved macro
             logging.debug('Catched ParseRollback, forcing text char')
             node, stream = _get_text_node(stream, register, register_map, builder, state, True, opened_text_node=opened_text_node)
             if opened_text_node is None:
-                nodes.append(node)
+                builder.append(node, move_actual=False)
             opened_text_node=node
-    return nodes
+
+    if hack_root is True:
+        builder.move_up()
+
+    # make sure that we have ended where we have begun
+    assert builder.actual_node == remembered_actual_node, "remembered %s, but actual node is %s" % (remembered_actual_node, builder.actual_node)
+
+    if hack_root is False:
+        return builder.root
+    else:
+        return builder.root.children

@@ -35,6 +35,7 @@ from unittest import main,TestCase, TestSuite
 
 from module_test import *
 from sneakylang import *
+from sneakylang.document import DocumentNode
 from sneakylang.treebuilder import *
 
 class DummyClass:
@@ -45,10 +46,11 @@ class TestSupportedMethods(TestCase):
     def setUp(self):
         self.builder = TreeBuilder()
 
-    def testTreeAppendingWithoutRoot(self):
-        self.assertRaises(ValueError, lambda:self.builder.append(DummyNode()))
+    def testBuildingForbiddenWithoutRoot(self):
+        n2 = DummyNode()
+        self.assertRaises(ValueError, lambda:self.builder.append(n2))
 
-    def testNodeAdding(self):
+    def testNodeAppending(self):
         n1 = DummyNode()
         n2 = DummyNode()
         self.builder.set_root(n1)
@@ -70,6 +72,44 @@ class TestSupportedMethods(TestCase):
         self.builder.append(n3, move_actual=False)
         self.assertEquals(n1, self.builder.actual_node)
 
+    def testTreeBuilding(self):
+        n1 = DummyNode()
+        n2 = DummyNode()
+        n3 = DummyNode()
+        n4 = DummyNode()
+        self.builder.set_root(n1)
+        self.assertEquals(n1, self.builder.actual_node)
+        self.builder.add_child(n2, move_actual=True)
+        self.assertEquals(n2, self.builder.actual_node)
+        self.builder.add_child(n3, False)
+        self.assertEquals(n2, self.builder.actual_node)
+        self.builder.append(n4, False)
+        self.assertEquals(n2, self.builder.actual_node)
+
+        self.assertEquals(n1, self.builder.root)
+        self.assertEquals(n2, n1.children[0])
+        self.assertEquals(n3, n2.children[0])
+        self.assertEquals(n4, n2.children[1])
+
+    def testListAdding(self):
+        n1 = DummyNode()
+        n2 = DummyNode()
+        n3 = DummyNode()
+        self.builder.set_root(n1)
+        self.assertEquals(n1, self.builder.actual_node)
+
+        self.builder.add_childs([n2, n3], False)
+        self.assertEquals(n1, self.builder.actual_node)
+        self.assertEquals(n1, self.builder.root)
+        self.assertEquals(n2, n1.children[0])
+        self.assertEquals(n3, n1.children[1])
+
+        self.builder.add_childs([n2, n3], True)
+        self.assertEquals(n1, self.builder.root)
+        self.assertEquals(n2, n1.children[2])
+        self.assertEquals(n3, n1.children[3])
+        self.assertEquals(n3, self.builder.actual_node)
+
 class TestBuilderCalledByMacro(TestCase):
     def setUp(self):
         self.builder = TreeBuilder()
@@ -77,7 +117,8 @@ class TestBuilderCalledByMacro(TestCase):
     def testCallingBuilder(self):
         s = '((silne test))'
         state = DummyClass()
-        tree = parse(s, RegisterMap({StrongVistingMacro : Register()}), state=state, builder=self.builder)
+        tree = parse(s, RegisterMap({StrongVistingMacro : Register()}), state=state, builder=self.builder, document_root=True)
+        self.assertEquals(DocumentNode, tree.__class__)
 
 if __name__ == "__main__":
     main()

@@ -124,7 +124,7 @@ def get_macro_name(stream, register):
     raise NotImplementedError, 'String not parsed in macro in one of possible MACRO_BEGIN instances, please report this as bug.'
 
 def call_macro(macro, argument_string, register, builder, state):
-    return macro.argument_call(argument_string, register, builder, state).expand()
+    macro.argument_call(argument_string, register, builder, state).expand()
 
 def expand_macro_from_stream(stream, register, builder, state):
     """ Stream is beginning with properly written macro, create proper macro and return

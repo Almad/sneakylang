@@ -39,6 +39,7 @@ class Node:
         # It's Python, we use implicit interfaces - isinstance considered harmful
 #        if not isinstance(node, Node):
 #            raise ValueError, 'Child of node must be instance of Node'
+
         if isinstance(node, TextNode):
             if self.actual_text_content is not None:
                 raise ValueError, 'Adding a text node, but one is alread present'
@@ -48,13 +49,6 @@ class Node:
         self.children.append(node)
         # visit node as parent
         node.parent = self
-
-#    def add_text_content(self, stream):
-#        if self.actual_text_content is None:
-#            self.add_child(TextNode(parent=self, chunk=None))
-#
-#        self.actual_text_content.add_char(stream[0:1])
-#        return stream[1:]
 
     def expand(self, format):
         for child in self.childs:
@@ -73,8 +67,8 @@ class TextNode(Node):
     begin/end of any macro.
     Could not have any children.
     """
-    def  __init__(self, *args, **kwargs):
-        self.content = ''
+    def  __init__(self, content='', *args, **kwargs):
+        self.content = content
         Node.__init__(self, *args, **kwargs)
 
     def add_char(self, char):

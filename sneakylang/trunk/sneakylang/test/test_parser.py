@@ -60,10 +60,10 @@ class TestParserCapabilities(TestCase):
 
     def testUnbreakedTextNodeProcessing(self):
         txt = '= jakoby nadpis\n= jakoby druhy nadpis'
-        res = parse(txt, RegisterMap({NadpisMacro:Register()}))
+        res = parse(txt, RegisterMap({NadpisMacro:Register()}), document_root=True)
 
-        self.assertEquals(1, len(res))
-        self.assertEquals(txt, res[0].content)
+        self.assertEquals(1, len(res.children))
+        self.assertEquals(txt, res.children[0].content)
 
 if __name__ == "__main__":
     main()

@@ -47,7 +47,7 @@ class TestStateArgument(TestCase):
     def testVisit(self):
         s = '((silne test))'
         state = VisitedStateClass()
-        tree = parse(s, RegisterMap({StrongVistingMacro : Register()}), state=state)
+        tree = parse(s, RegisterMap({StrongVistingMacro : Register()}), state=state, document_root=True)
         self.assertEquals(state.visited, 1)
 
 

@@ -40,7 +40,7 @@ class DummyMacro(Macro):
     name = 'dummy_macro'
 
     def expand_to_nodes(self, *args, **kwargs):
-        return DummyNode()
+        self.builder.append(DummyNode())
 
 class DummyNode(Node):
     name = 'dummy node'
@@ -98,14 +98,9 @@ class ParagraphMacro(Macro):
         return [argument_string]
 
     def expand_to_nodes(self, content, **kwargs):
-        p = ParagraphNode()
-        logging.debug('Parsing paragraph content')
-        nodes = parse(content, self.register_map, self.register)
-        logging.debug('Appedding result %s to paragraph' % nodes)
-        for n in nodes:
-            p.add_child(n)
-        logging.debug('Expanding node %s' % p)
-        return p
+        self.builder.append(ParagraphNode())
+        parse(content, self.register_map, self.register, builder=self.builder)
+        self.builder.move_up()
 
 class Paragraph(Parser):
     start = ['(\n){2}']
@@ -129,22 +124,19 @@ class StrongMacro(Macro):
     help = '((silne zesileny text))'
 
     def expand_to_nodes(self, content, **kwargs):
-        n = StrongNode()
-        tn = TextNode()
-        tn.content = content
-        n.add_child(tn)
-        return n
+        self.builder.append(StrongNode(), move_actual=True)
+        self.builder.add_child(TextNode(content=content), move_actual=False)
+        self.builder.move_up()
 
 class StrongVistingMacro(Macro):
     name = 'silne'
     help = '((silne zesileny text))'
 
-    def expand_to_nodes(self, content, builder, state, **kwargs):
+    def expand_to_nodes(self, content, *args, **kwargs):
         self.state.visit(self)
-        self.builder.append(StrongNode)
-        tn = TextNode()
-        tn.content = content
-        self.builder.append(tn, move_actual=False)
+        self.builder.append(StrongNode())
+        self.builder.append(TextNode(content=content), move_actual=False)
+        self.builder.move_up()
 
 class Strong(Parser):
     start = ['("){2}']

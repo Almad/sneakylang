@@ -75,7 +75,9 @@ class TestMacroCaller(TestCase):
         self.assertEquals(None, get_macro_name('((dummy_macro argument argument \n)) Multiline not allowed', self.reg))
 
     def testMacroExpanding(self):
-        self.assertEquals(DummyNode, call_macro(DummyMacro, '', Register([DummyMacro]), TreeBuilder(), None).__class__)
+        builder = TreeBuilder(root=DummyNode())
+        call_macro(DummyMacro, '', Register([DummyMacro]), builder, None)
+        self.assertEquals(DummyNode, builder.root.children[0].__class__)
         res = expand_macro_from_stream('((dummy_macro))', self.reg, TreeBuilder, None)
         self.assertEquals(res[0].__class__, DummyMacro)
         self.assertEquals(res[1], '')
