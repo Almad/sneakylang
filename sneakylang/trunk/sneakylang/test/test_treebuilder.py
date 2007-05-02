@@ -34,9 +34,12 @@ from unittest import main,TestCase, TestSuite
 #logging.basicConfig(level=logging.DEBUG)
 
 from module_test import *
-
+from sneakylang import *
 from sneakylang.treebuilder import *
 
+class DummyClass:
+    def visit(self, *args, **kwargs):
+        pass
 
 class TestSupportedMethods(TestCase):
     def setUp(self):
@@ -55,10 +58,23 @@ class TestSupportedMethods(TestCase):
     def testTreeTraversing(self):
         n1 = DummyNode()
         n2 = DummyNode()
+        n3 = DummyNode()
         self.builder.append(n1, move_actual=True)
+        self.assertEquals(n1, self.builder.actual_node)
         self.builder.append(n2, move_actual=True)
         self.builder.move_up()
         self.assertEquals(n1, self.builder.actual_node)
+        self.builder.append(n3, move_actual=False)
+        self.assertEquals(n1, self.builder.actual_node)
+
+class TestBuilderCalledByMacro(TestCase):
+    def setUp(self):
+        self.builder = TreeBuilder()
+
+    def testCallingBuilder(self):
+        s = '((silne test))'
+        state = DummyClass()
+        tree = parse(s, RegisterMap({StrongVistingMacro : Register()}), state=state, builder=self.builder)
 
 if __name__ == "__main__":
     main()

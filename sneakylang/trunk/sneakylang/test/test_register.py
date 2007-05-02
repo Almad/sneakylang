@@ -38,6 +38,7 @@ from sneakylang.register import *
 from sneakylang.macro import Macro
 from sneakylang.node import Node
 from sneakylang.parser import Parser
+from sneakylang.treebuilder import TreeBuilder
 
 class DummyMacro(Macro):
     name = 'dummy_macro'
@@ -110,6 +111,7 @@ class TestRegister(TestCase):
 
     def setUp(self):
         self.r = Register()
+        self.builder = TreeBuilder()
 
     def testMacroHolding(self):
         self.r.add(DummyMacro)
@@ -118,31 +120,31 @@ class TestRegister(TestCase):
         self.r.add_parser(AnotherDummyParser)
         self.assertEquals(False, AnotherDummyParser.start[0] in self.r.parser_register.parser_start)
 
-        self.assertEquals((None,None), self.r.resolve_macro('####'))
+        self.assertEquals((None,None), self.r.resolve_macro('####', self.builder))
         self.r.add_parser(DummyParser)
-        self.assertEquals(DummyMacro, self.r.resolve_macro('####')[0].__class__)
+        self.assertEquals(DummyMacro, self.r.resolve_macro('####', self.builder)[0].__class__)
 
         self.r.add_parser(AnotherDummyParser)
-        self.assertEquals((None,None), self.r.resolve_macro('--'))
+        self.assertEquals((None,None), self.r.resolve_macro('--', self.builder))
         self.r.add(AnotherDummyMacro)
-        self.assertEquals((None,None), self.r.resolve_macro('--'))
+        self.assertEquals((None,None), self.r.resolve_macro('--', self.builder))
         self.r.add_parser(AnotherDummyParser)
-        self.assertEquals(AnotherDummyMacro, self.r.resolve_macro('--')[0].__class__)
+        self.assertEquals(AnotherDummyMacro, self.r.resolve_macro('--', self.builder)[0].__class__)
 
     def testEasyParserAdding(self):
         reg = Register([DummyMacro, AnotherDummyMacro], [DummyParser, AnotherDummyParser])
-        self.assertEquals(DummyMacro, reg.resolve_macro('####')[0].__class__)
-        self.assertEquals(AnotherDummyMacro, reg.resolve_macro('--')[0].__class__)
+        self.assertEquals(DummyMacro, reg.resolve_macro('####', self.builder)[0].__class__)
+        self.assertEquals(AnotherDummyMacro, reg.resolve_macro('--', self.builder)[0].__class__)
 
     def testNotAddingParserWhichHasNotMacroAlreadyInRegister(self):
         reg = Register([DummyMacro], [DummyParser])
         self.assertEquals(False, AnotherDummyParser.start[0] in reg.parser_register.parser_start)
-        self.assertEquals((None, None), reg.resolve_macro('--'))
+        self.assertEquals((None, None), reg.resolve_macro('--', self.builder))
 
     def testNotAddingParserWhichHasNotMacroAlreadyInRegisterWithEasyAdding(self):
         reg = Register([DummyMacro], [DummyParser, AnotherDummyParser])
         self.assertEquals(False, AnotherDummyParser.start[0] in reg.parser_register.parser_start)
-        self.assertEquals((None, None), reg.resolve_macro('--'))
+        self.assertEquals((None, None), reg.resolve_macro('--', self.builder))
 
 
 class TestRegisterMap(TestCase):

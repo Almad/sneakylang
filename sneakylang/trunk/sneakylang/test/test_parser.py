@@ -38,6 +38,7 @@ from sneakylang.macro import Macro
 from sneakylang.node import Node
 from sneakylang.parser import *
 from sneakylang.register import Register, RegisterMap
+from sneakylang import *
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -47,7 +48,7 @@ class TestParser(TestCase):
         self.p = DummyParser('', None, '####', Register([DummyMacro]))
 
     def testMacroResolving(self):
-        self.assertEquals(self.p.get_macro()[0].__class__, DummyMacro)
+        self.assertEquals(self.p.get_macro(TreeBuilder(), None)[0].__class__, DummyMacro)
 
 class TestParserCapabilities(TestCase):
 

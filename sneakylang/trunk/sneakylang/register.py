@@ -143,16 +143,16 @@ class Register:
         else:
             raise ValueError, 'Unexpected exception, please report this as bug'
 
-    def resolve_macro(self, stream):
+    def resolve_macro(self, stream, builder, state=None):
         parser = self.parser_register.resolve_parser(stream, self)
         if parser is not None:
-            macro, stream_new = parser.get_macro()
+            macro, stream_new = parser.get_macro(builder, state)
             return (macro, stream_new)
 
         # resolve in macro syntax
         macro = self.resolve_parser_macro(stream)
         if macro is not None:
-            return expand_macro_from_stream(stream, self)
+            return expand_macro_from_stream(stream, self, builder, state)
 
         return (None, None)
 

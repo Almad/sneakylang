@@ -32,6 +32,7 @@ from macro import *
 from node import *
 from parser import *
 from document import *
+from treebuilder import *
 
 def parse_start(stream, register_map):
     parser = DocumentParser(stream, register_map[document.DocumentParser], '', register_map)

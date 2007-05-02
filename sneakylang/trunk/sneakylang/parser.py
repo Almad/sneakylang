@@ -32,6 +32,7 @@ import macro
 from node import TextNode
 from register import Register
 from macro_caller import expand_macro_from_stream
+from treebuilder import TreeBuilder
 
 class Parser(object):
     """ All parsers should derivate from this class """
@@ -57,17 +58,17 @@ class Parser(object):
         """
         pass
 
-    def _get_macro(self):
-        return self.macro.argument_call(self.argument_string, self.register)
+    def _get_macro(self, builder, state):
+        return self.macro.argument_call(self.argument_string, self.register, builder, state)
 
     def resolve_argument_string(self):
         """ Resolve transform content to argument string which would be used if calling macro by macro syntax """
 
-    def get_macro(self):
+    def get_macro(self, builder, state):
         """ Return properly istantiazed macro and new stream """
         self.begin_parse()
         self.resolve_argument_string()
-        return (self._get_macro(), self.stream)
+        return (self._get_macro(builder, state), self.stream)
 
     def parse(self):
         macro, self.stream = self.get_macro()
@@ -84,7 +85,7 @@ class Parser(object):
     register = property(fget=get_register)
 
 
-def _get_text_node(stream, register, register_map, force_first_char=False, opened_text_node=None):
+def _get_text_node(stream, register, register_map, builder, state, force_first_char=False, opened_text_node=None):
     if opened_text_node is None:
         tn = TextNode()
     else:
@@ -96,7 +97,7 @@ def _get_text_node(stream, register, register_map, force_first_char=False, opene
 
     while True:
         try:
-            res = register.resolve_macro(stream)
+            res = register.resolve_macro(stream, builder, state)
         except (ParserRollback, MacroCallError):
             pass
         else:
@@ -111,7 +112,9 @@ def _get_text_node(stream, register, register_map, force_first_char=False, opene
 #TODO: Reduce this as constant
 NEGATION="!"
 
-def parse(stream, register_map, register=None, parsers=None, state=None):
+def parse(stream, register_map, register=None, parsers=None, state=None, builder=None):
+    if builder is None:
+        builder = TreeBuilder()
     if register is None:
         register = Register([p for p in register_map])
         register.visit_register_map(register_map)
@@ -122,24 +125,24 @@ def parse(stream, register_map, register=None, parsers=None, state=None):
     nodes = []
     while len(stream) > 0:
         try:
-            macro, stream_new = register.resolve_macro(stream)
+            macro, stream_new = register.resolve_macro(stream, builder, state)
             if macro is not None and stream_new is not None:
                 logging.debug('Resolved macro %s' % macro)
-                res = macro.expand(state=state)
+                res = macro.expand(builder=builder, state=state)
                 logging.debug('Appending %s' % res)
                 nodes.append(res)
                 stream = stream_new
                 opened_text_node = None
             else:
                 # parser not resolved, add text node
-                node, stream = _get_text_node(stream, register, register_map, opened_text_node=opened_text_node)
+                node, stream = _get_text_node(stream, register, register_map, builder, state, opened_text_node=opened_text_node)
                 if opened_text_node is None:
                     nodes.append(node)
                 opened_text_node=node
         except (ParserRollback, MacroCallError):
             #badly resolved macro
             logging.debug('Catched ParseRollback, forcing text char')
-            node, stream = _get_text_node(stream, register, register_map, True, opened_text_node=opened_text_node)
+            node, stream = _get_text_node(stream, register, register_map, builder, state, True, opened_text_node=opened_text_node)
             if opened_text_node is None:
                 nodes.append(node)
             opened_text_node=node

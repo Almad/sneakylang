@@ -36,6 +36,7 @@ from module_test import *
 from sneakylang.macro import *
 from sneakylang.macro_caller import *
 from sneakylang.register import Register, RegisterMap
+from sneakylang.treebuilder import TreeBuilder
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -45,7 +46,7 @@ class TestMacro(TestCase):
         self.reg_map = RegisterMap({DummyMacro : Register()})
 
     def testDefaultArgumentParsing(self):
-        macro = DummyMacro(self.reg_map)
+        macro = DummyMacro(self.reg_map, TreeBuilder())
         macro.parse_argument_string("arg arg2")
         self.assertEquals(macro.arguments, ['arg', 'arg2'])
 
@@ -74,8 +75,8 @@ class TestMacroCaller(TestCase):
         self.assertEquals(None, get_macro_name('((dummy_macro argument argument \n)) Multiline not allowed', self.reg))
 
     def testMacroExpanding(self):
-        self.assertEquals(DummyNode, call_macro(DummyMacro, '', Register([DummyMacro])).__class__)
-        res = expand_macro_from_stream('((dummy_macro))', self.reg)
+        self.assertEquals(DummyNode, call_macro(DummyMacro, '', Register([DummyMacro]), TreeBuilder(), None).__class__)
+        res = expand_macro_from_stream('((dummy_macro))', self.reg, TreeBuilder, None)
         self.assertEquals(res[0].__class__, DummyMacro)
         self.assertEquals(res[1], '')
 

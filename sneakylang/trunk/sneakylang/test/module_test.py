@@ -139,13 +139,12 @@ class StrongVistingMacro(Macro):
     name = 'silne'
     help = '((silne zesileny text))'
 
-    def expand_to_nodes(self, content, state, **kwargs):
-        state.visit(self)
-        n = StrongNode()
+    def expand_to_nodes(self, content, builder, state, **kwargs):
+        self.state.visit(self)
+        self.builder.append(StrongNode)
         tn = TextNode()
         tn.content = content
-        n.add_child(tn)
-        return n
+        self.builder.append(tn, move_actual=False)
 
 class Strong(Parser):
     start = ['("){2}']

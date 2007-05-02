@@ -36,9 +36,11 @@ class Macro(object):
     help = """<this macro haven't specified usage example>"""
     parsers_allowed = None
 
-    def __init__(self, register_map):
+    def __init__(self, register_map, builder, state=None):
         self.register_map = register_map
         self.arguments = []
+        self.builder = builder
+        self.state = state
 
     def get_argument_list(self, argument_string):
         """ Return list of arguments. Uses ARGUMENT_SEPARATOR as argument separator.
@@ -54,10 +56,10 @@ class Macro(object):
             self.arguments = self.get_argument_list(argument_string)
 
     @classmethod
-    def argument_call(cls, argument_string, register):
+    def argument_call(cls, argument_string, register, builder, state):
         """ argument_string - string as it would be called by macro syntax
         returns properly istantiazed macro, ready call expand() function """
-        macro_instance = cls(register.register_map)
+        macro_instance = cls(register.register_map, builder, state)
         macro_instance.parse_argument_string(argument_string)
         return macro_instance
 
@@ -66,7 +68,6 @@ class Macro(object):
             return self.expand_to_nodes(*self.arguments, **kwargs)
         except TypeError, err:
             raise MacroCallError, err
-
 
     def expand_to_nodes(self, *args, **kwargs):
         """ Macro with arguments resolved; macro should expand themselves to Nodes and append to DOM """
