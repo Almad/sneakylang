@@ -125,7 +125,7 @@ class StrongMacro(Macro):
 
     def expand_to_nodes(self, content, **kwargs):
         self.builder.append(StrongNode(), move_actual=True)
-        self.builder.add_child(TextNode(content=content), move_actual=False)
+        parse(content, self.register_map, self.register, builder=self.builder)
         self.builder.move_up()
 
 class StrongVistingMacro(Macro):

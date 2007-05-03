@@ -75,6 +75,10 @@ class Macro(object):
 
     def _get_register(self):
         """ Property function, use .register attribute instead """
-        return self.register_map[self.__class__]
+        if self.register_map.has_key(self.__class__):
+            return self.register_map[self.__class__]
+        else:
+            from register import Register
+            return Register()
 
     register = property(fget=_get_register)

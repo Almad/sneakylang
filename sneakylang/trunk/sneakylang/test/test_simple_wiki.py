@@ -42,7 +42,6 @@ from sneakylang.expanders import Expander, expand, TextNodeExpander
 
 register_map = RegisterMap({
     ParagraphMacro : Register([StrongMacro], parsers_list),
-    StrongMacro : Register(parsers=parsers_list)
 })
 
 node_map = {
