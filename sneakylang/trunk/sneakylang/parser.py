@@ -34,6 +34,9 @@ from register import Register
 from macro_caller import expand_macro_from_stream
 from treebuilder import TreeBuilder
 
+#FIXME
+NEGATION_CHAR = "!"
+
 class Parser(object):
     """ All parsers should derivate from this class """
     start = []
@@ -139,12 +142,18 @@ def parse(stream, register_map, register=None, parsers=None, state=None, builder
         try:
             macro, stream_new = register.resolve_macro(stream, builder, state)
             if macro is not None and stream_new is not None:
+                # negation in effect?
+                if opened_text_node is not None and opened_text_node.content.endswith(NEGATION_CHAR):
+                    # don't forget to eat negation char!
+                    opened_text_node.content = opened_text_node.content[:-1] 
+                    raise ParserRollback, "Negation resolved"
+                
                 logging.debug('Resolved macro %s' % macro)
                 macro.expand(builder=builder, state=state)
                 stream = stream_new
                 opened_text_node = None
             else:
-                # parser not resolved, add text node
+                # macro not resolved, add text node
                 node, stream = _get_text_node(stream, register, register_map, builder, state, opened_text_node=opened_text_node)
                 if opened_text_node is None:
                     builder.append(node, move_actual=False)

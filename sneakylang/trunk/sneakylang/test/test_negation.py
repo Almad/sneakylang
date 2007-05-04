@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" Test Parsers
+""" Test Negation
 """
 
 ###
@@ -37,32 +37,42 @@ from sneakylang import parse, RegisterMap, Document
 
 #logging.basicConfig(level=logging.DEBUG)
 
-###TODO: Negation not in plan yet
-#class TestParserNegation(TestCase):
-#    def testNegateStrong(self):
-#        pass
-#
-#class TestMacroNegation(TestCase):
-#    def setUp(self):
-#        self.register_map = RegisterMap({
-#            ParagraphMacro : Register([StrongMacro]),
-#            StrongMacro : Register([]),
-#            Document : Register([ParagraphMacro])
-#        })
-#
-#        self.expanderMap = {
-#             'docbook5' : {
-#                 ParagraphNode : ParagraphDocbookExpand,
-#                 TextNode : TextNodeExpander             }
-#        }
-#
-#    def testNegateStrong(self):
-#        s = '!((odstavec text odstavce))'
-#        o = parse(s, self.register_map)
-#        self.assertEquals(len(o), 1)
-#        self.assertEquals(o[0].__class__, ParagraphNode)
-#        self.assertEquals(o[0].children[0].__class__, TextNode)
-#        self.assertEquals(o[0].children[0].content, '((odstavec text odstavce))')
+NEGATION_CHAR = "!"
+
+class TestNegation(TestCase):
+    def setUp(self):
+        self.register_map = RegisterMap({
+            ParagraphMacro : Register([StrongMacro]),
+            StrongMacro : Register()
+        })
+
+        self.expanderMap = {
+             'docbook5' : {
+                 ParagraphNode : ParagraphDocbookExpand,
+                 TextNode : TextNodeExpander
+             }
+        }
+
+    def testNegateMacroSyntax(self):
+        s = NEGATION_CHAR+'((odstavec text odstavce))'
+        o = parse(s, self.register_map, document_root=True)
+        self.assertEquals(len(o.children), 1)
+        self.assertEquals(o.children[0].__class__, TextNode)
+        self.assertEquals(o.children[0].content, '((odstavec text odstavce))')
+
+    def testNegateMacroSyntaxWithTwoNegationsChars(self):
+        s = 2*NEGATION_CHAR+'((odstavec text !odstavce))'
+        o = parse(s, self.register_map, document_root=True)
+        self.assertEquals(len(o.children), 1)
+        self.assertEquals(o.children[0].__class__, TextNode)
+        self.assertEquals(o.children[0].content, NEGATION_CHAR+'((odstavec text !odstavce))')
+    
+    def testNegateParserSyntax(self):
+        s = NEGATION_CHAR+'""strong""'
+        o = parse(s, self.register_map, parsers=parsers_list, document_root=True)
+        self.assertEquals(len(o.children), 1)
+        self.assertEquals(o.children[0].__class__, TextNode)
+        self.assertEquals(o.children[0].content, '""strong""')
 
 if __name__ == "__main__":
     main()
