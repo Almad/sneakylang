@@ -43,6 +43,8 @@ class TestArgumentParsing(TestCase):
 
     def testParsingLongArgument(self):
         self.assertEquals(["testing arg"], parse_macro_arguments('"testing arg"'))
+        self.assertEquals(["testing arg", "argument"], parse_macro_arguments('"testing arg" argument'))
+        self.assertEquals(["arg", "harg", "testing arg", "argument"], parse_macro_arguments('arg "harg" "testing arg" argument'))
 
 class TestMacroCaller(TestCase):
     def setUp(self):

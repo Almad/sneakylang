@@ -71,6 +71,8 @@ def parse_macro_arguments(argument_string):
     for char in argument_string:
         if in_long_argument and char is not LONG_ARGUMENT_END:
             buffer = ''.join([buffer, char])
+        elif in_long_argument and char is LONG_ARGUMENT_END:
+            in_long_argument = False
         else:
             if char is not ARGUMENT_SEPARATOR:
                 if char is LONG_ARGUMENT_BEGIN:
