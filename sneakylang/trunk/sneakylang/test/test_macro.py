@@ -50,37 +50,5 @@ class TestMacro(TestCase):
         macro.parse_argument_string("arg arg2")
         self.assertEquals(macro.arguments, ['arg', 'arg2'])
 
-
-class TestMacroCaller(TestCase):
-    def setUp(self):
-        self.reg = Register([DummyMacro])
-
-    def testContentResolving(self):
-        self.assertEquals('arg arg', get_content('arg arg))adf'))
-        self.assertEquals('dummy_macro', get_content('dummy_macro))'))
-        self.assertEquals(None, get_content('arg arg'))
-        self.assertEquals(None, get_content('arg arg \n))'))
-
-    def testResolveName(self):
-        self.assertEquals(('dummy_macro', None), resolve_macro_name('dummy_macro'))
-        self.assertEquals(('dummy_macro', 'arg arg'), resolve_macro_name('dummy_macro arg arg'))
-#
-    def testResolvingFromRegister(self):
-        self.assertEquals('dummy_macro', resolve_name_from_register('dummy_macro', self.reg))
-
-    def testResolvingNameFromMacro(self):
-        self.assertEquals('dummy_macro', get_macro_name('((dummy_macro))', self.reg))
-        self.assertEquals('dummy_macro', get_macro_name('((dummy_macro argument argument))', self.reg))
-        self.assertEquals(None, get_macro_name('((dummy_macro argument argument haha', self.reg))
-        self.assertEquals(None, get_macro_name('((dummy_macro argument argument \n)) Multiline not allowed', self.reg))
-
-    def testMacroExpanding(self):
-        builder = TreeBuilder(root=DummyNode())
-        call_macro(DummyMacro, '', Register([DummyMacro]), builder, None)
-        self.assertEquals(DummyNode, builder.root.children[0].__class__)
-        res = expand_macro_from_stream('((dummy_macro))', self.reg, TreeBuilder, None)
-        self.assertEquals(res[0].__class__, DummyMacro)
-        self.assertEquals(res[1], '')
-
 if __name__ == "__main__":
     main()

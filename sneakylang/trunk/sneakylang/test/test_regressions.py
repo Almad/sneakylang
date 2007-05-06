@@ -53,7 +53,7 @@ node_map = {
 ### End of definition
 
 
-class TestParsing(TestCase):
+class TestSimpleWikiParsing(TestCase):
 
     def testSimplestParaWithoutEnd(self):
         s = '''\n\nParagraph'''
@@ -91,13 +91,7 @@ class TestParsing(TestCase):
         self.assertEquals(isinstance(o.children[0].children[1].children[0], TextNode), True)
         self.assertEquals(o.children[0].children[1].children[0].content, 'strong')
 
-#class TestNodeDisplaying(TestCase):
-#    def testDisplay(self):
-#        s = '''\n\nParagraph ""strong""'''
-#        o = parse(s, register_map, parsers=parsers_list)
-#        self.assertEquals('[[Paragraph][[Strong]]]', str(o))
-
-class TestExpand(TestCase):
+class TestSimpleWikiExpand(TestCase):
     def testExpandFromTree(self):
         p = ParagraphNode()
         tn = TextNode()

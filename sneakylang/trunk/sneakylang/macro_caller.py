@@ -56,6 +56,36 @@ MACRO_END = '))'
 # ))
 ALLOW_MULTILINE_MACRO = False
 
+LONG_ARGUMENT_BEGIN = '"'
+LONG_ARGUMENT_END = '"'
+
+
+def parse_macro_arguments(argument_string):
+    if len(argument_string) == 0:
+        return None
+
+    args = []
+    buffer = ''
+    in_long_argument = False
+
+    for char in argument_string:
+        if in_long_argument and char is not LONG_ARGUMENT_END:
+            buffer = ''.join([buffer, char])
+        else:
+            if char is not ARGUMENT_SEPARATOR:
+                if char is LONG_ARGUMENT_BEGIN:
+                    in_long_argument = True
+                else:
+                    buffer = ''.join([buffer, char])
+            else:
+                if len(buffer) > 0:
+                    args.append(buffer)
+                buffer = ''
+    if len(buffer) > 0:
+        args.append(buffer)
+
+    return args
+
 def resolve_macro_name(stream):
     """ Resolve macro name. Return tuple(macro_name, string_with_macro_arguments) """
     if isinstance(MACRO_NAME_ARGUMENT_SEPARATOR, StringType):
@@ -64,10 +94,9 @@ def resolve_macro_name(stream):
         res = stream.split(MACRO_NAME_ARGUMENT_SEPARATOR)
         if len(res) == 1:
             return (res[0], None)
-        if len(res) == 2:
-            return (res[0], res[1])
         else:
-            return (res[0], ''.join([''.join([arg, ARGUMENT_SEPARATOR]) for arg in res[1:]])[:-len(ARGUMENT_SEPARATOR)])
+#            return (res[0], parse_macro_arguments(stream[len(res[0]):]))
+            return (res[0], stream[len(res[0])+len(MACRO_NAME_ARGUMENT_SEPARATOR):])
     else:
         raise NotImplementedError, 'MACRO_NAME_ARGUMENT_SEPARATOR must be string, other types like regexp are not yet supported'
 
@@ -137,5 +166,6 @@ def expand_macro_from_stream(stream, register, builder, state):
     macro_content = get_content(stream[len(MACRO_BEGIN):])
     # assuming macro previously resolved in context
     name, args = resolve_macro_name(macro_content)
+    assert type(args) in (type(None), type('')), str(args)
     new_stream = stream[len(MACRO_BEGIN)+len(macro_content)+len(MACRO_END):]
     return (register.macro_map[name].argument_call(args, register, builder, state), new_stream)

@@ -28,7 +28,7 @@ import logging
 
 from err import *
 import node
-from macro_caller import ARGUMENT_SEPARATOR
+from macro_caller import parse_macro_arguments
 
 class Macro(object):
     """ All macros should derive from this class """
@@ -49,7 +49,7 @@ class Macro(object):
         argument separator. Nested quotes must not be escaped unless containting quote followed by argument
         separator; escape char is backslash (\)
         """
-        return argument_string.split(ARGUMENT_SEPARATOR)
+        return parse_macro_arguments(argument_string)
 
     def parse_argument_string(self, argument_string):
         if argument_string is not None and argument_string is not '':
@@ -59,13 +59,14 @@ class Macro(object):
     def argument_call(cls, argument_string, register, builder, state):
         """ argument_string - string as it would be called by macro syntax
         returns properly istantiazed macro, ready call expand() function """
+        assert type(argument_string) in (type(None), type('')), str(argument_string)
         macro_instance = cls(register.register_map, builder, state)
         macro_instance.parse_argument_string(argument_string)
         return macro_instance
 
     def expand(self, **kwargs):
         try:
-            return self.expand_to_nodes(*self.arguments, **kwargs)
+            return self.expand_to_nodes(*self.arguments)
         except TypeError, err:
             raise MacroCallError, err
 

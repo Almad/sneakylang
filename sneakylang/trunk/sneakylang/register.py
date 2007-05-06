@@ -136,6 +136,8 @@ class Register:
         """
 #        logging.debug('Trying to resolve macro in stream')
         try:
+            if type(stream) != type(''):
+                raise ValueError, stream
             return self.macro_map[get_macro_name(stream, self)]
         except KeyError:
 #            logging.debug('Macro name %s not in my macro_map' % get_macro_name(stream,self))
@@ -146,6 +148,7 @@ class Register:
     def resolve_macro(self, stream, builder, state=None):
         parser = self.parser_register.resolve_parser(stream, self)
         if parser is not None:
+            # Macro resolved in alternate syntax, use parser to get pacro
             macro, stream_new = parser.get_macro(builder, state)
             return (macro, stream_new)
 

@@ -24,13 +24,9 @@
 
 import re
 
+from sneakylang.err import ParserRollback, MacroCallError
 from sneakylang.macro import Macro
-from sneakylang.node import Node
-from sneakylang.parser import *
-from sneakylang.register import Register
-
-from sneakylang.err import ParserRollback
-from sneakylang.macro import Macro
+from sneakylang.macro_caller import parse_macro_arguments
 from sneakylang.node import Node, TextNode
 from sneakylang.parser import *
 from sneakylang.register import Register
@@ -86,6 +82,14 @@ class Nadpis(Parser):
 ### Define basic grammar
 # This wiki have only paragraps (\n\n) and headings (=)
 
+class OneArgumentMacro(Macro):
+    name = 'onearg'
+
+    def expand_to_nodes(self, content):
+        self.builder.append(DummyNode())
+        self.builder.append(TextNode(content=content), move_actual=False)
+        self.builder.move_up()
+
 class ParagraphNode(Node): pass
 
 class ParagraphMacro(Macro):
@@ -97,7 +101,10 @@ class ParagraphMacro(Macro):
     def get_argument_list(self, argument_string):
         return [argument_string]
 
-    def expand_to_nodes(self, content, **kwargs):
+    def expand_to_nodes(self, *args):
+        if len(args) < 1:
+            raise MacroCallError, "Paragraph must have some content"
+        content = ''.join([word+' ' for word in args])[:-1]
         self.builder.append(ParagraphNode())
         parse(content, self.register_map, self.register, builder=self.builder)
         self.builder.move_up()

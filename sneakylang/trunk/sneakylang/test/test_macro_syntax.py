@@ -36,6 +36,19 @@ from module_test import *
 
 from sneakylang import parse, RegisterMap, Document
 
+class TestArgumentParsing(TestCase):
+    def testParsingShortArgument(self):
+        s = '((onearg test))'
+        o = parse(s, RegisterMap({OneArgumentMacro : Register()}), document_root = True)
+        self.assertEquals(DummyNode, o.children[0].__class__)
+        self.assertEquals("test", o.children[0].children[0].content)
+
+    def testParsingLongArgument(self):
+        s = '((onearg "long argument"))'
+        o = parse(s, RegisterMap({OneArgumentMacro : Register()}), document_root = True)
+        self.assertEquals(DummyNode, o.children[0].__class__)
+        self.assertEquals("long argument", o.children[0].children[0].content)
+
 class TestSimpleResolving(TestCase):
     def setUp(self):
         self.register_map = RegisterMap({

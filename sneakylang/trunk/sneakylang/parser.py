@@ -139,15 +139,16 @@ def parse(stream, register_map, register=None, parsers=None, state=None, builder
     opened_text_node = None
 
     while len(stream) > 0:
+        assert type(stream) == type(''), stream
         try:
             macro, stream_new = register.resolve_macro(stream, builder, state)
             if macro is not None and stream_new is not None:
                 # negation in effect?
                 if opened_text_node is not None and opened_text_node.content.endswith(NEGATION_CHAR):
                     # don't forget to eat negation char!
-                    opened_text_node.content = opened_text_node.content[:-1] 
+                    opened_text_node.content = opened_text_node.content[:-1]
                     raise ParserRollback, "Negation resolved"
-                
+
                 logging.debug('Resolved macro %s' % macro)
                 macro.expand(builder=builder, state=state)
                 stream = stream_new
