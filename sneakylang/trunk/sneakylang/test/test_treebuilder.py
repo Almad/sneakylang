@@ -90,6 +90,26 @@ class TestSupportedMethods(TestCase):
         self.assertEquals(n2, n1.children[0])
         self.assertEquals(n3, n2.children[0])
         self.assertEquals(n4, n2.children[1])
+    
+    def testSettingActualNodeByInstance(self):
+        # first build some tree
+        n1 = DummyNode()
+        n2 = DummyNode()
+        n3 = DummyNode()
+        n4 = DummyNode()
+        self.builder.set_root(n1)
+        self.assertEquals(n1, self.builder.actual_node)
+        self.builder.add_child(n2, move_actual=True)
+        self.assertEquals(n2, self.builder.actual_node)
+        self.builder.add_child(n3, False)
+        self.assertEquals(n2, self.builder.actual_node)
+        self.builder.append(n4, False)
+        self.assertEquals(n2, self.builder.actual_node)
+        
+        self.builder.set_actual_node(n4)
+        self.assertEquals(n4, self.builder.actual_node)
+        
+        self.assertRaises(ValueError, lambda:self.builder.set_actual_node(DummyNode()))
 
     def testListAdding(self):
         n1 = DummyNode()

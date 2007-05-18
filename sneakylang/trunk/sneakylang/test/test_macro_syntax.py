@@ -71,16 +71,6 @@ class TestSimpleResolving(TestCase):
         self.assertEquals(o.children[0].__class__, ParagraphNode)
         self.assertEquals(o.children[0].children[0].__class__, TextNode)
         self.assertEquals(o.children[0].children[0].content, 'text odstavce')
-        # nefunguje, nutne udelat parsovani vnorenych maker
-#        s = '((odstavec ((silne silny)) text odstavce))'
-#        o = parse(s, self.register_map)
-#        self.assertEquals(len(o), 1)
-#        self.assertEquals(o[0].__class__, ParagraphNode)
-#        self.assertEquals(o[0].children[0].__class__, Strong)
-#        self.assertEquals(o[0].children[0].children[0].__class__, TextNode)
-#        self.assertEquals(o[0].children[0].children[0].content, 'silny')
-#        self.assertEquals(o[0].children[1].__class__, TextNode)
-#        self.assertEquals(o[0].children[1].content, ' text odstavce')
 
     def testBadCall(self):
         s = '((odstavec))'
@@ -88,6 +78,32 @@ class TestSimpleResolving(TestCase):
         self.assertEquals(len(o.children), 1)
         self.assertEquals(o.children[0].__class__, TextNode)
         self.assertEquals(o.children[0].content, '((odstavec))')
+
+class TestNestedMacroSyntax(TestCase):
+    def setUp(self):
+        self.register_map = RegisterMap({
+            ParagraphMacro : Register([StrongMacro]),
+            StrongMacro : Register([]),
+            Document : Register([ParagraphMacro])
+        })
+
+        self.expanderMap = {
+             'docbook5' : {
+                 ParagraphNode : ParagraphDocbookExpand,
+                 TextNode : TextNodeExpander
+             }
+        }
+
+    def testProperNested(self):
+        s = '((odstavec ((silne silny)) text odstavce))'
+        o = parse(s, self.register_map, document_root=True)
+        self.assertEquals(len(o.children), 1)
+        self.assertEquals(o.children[0].__class__, ParagraphNode)
+        self.assertEquals(o.children[0].children[0].__class__, Strong)
+        self.assertEquals(o.children[0].children[0].children[0].__class__, TextNode)
+        self.assertEquals(o.children[0].children[0].children[0].content, 'silny')
+        self.assertEquals(o.children[0].children[1].__class__, TextNode)
+        self.assertEquals(o.children[0].children[1].content, ' text odstavce')
 
 if __name__ == "__main__":
     main()
