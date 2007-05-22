@@ -64,20 +64,26 @@ class TreeBuilder(object):
         if move_actual is True:
             self._actual_node = node
 
+    @root_required
+    def replace(self, node):
+        if self._actual_node != self.root:
+            self._actual_node.parent.add_child(node, position=self._actual_node.parent.children.index(self._actual_node))
+        self._actual_node = node
+
     def set_root(self, node):
         self.root = node
         self._actual_node = node
 
     def get_actual_node(self):
         return self._actual_node
-    
+
     def get_node_from_children(self, node, node_list):
         if node in node_list:
             return node
         else:
             for n in node_list:
                 return self.get_node_from_children(node, n.children)
-    
+
     def set_actual_node(self, node):
         """ Traverse through node tree, find given node instance and set it as active node.
         If node is not found, raise ValueError """

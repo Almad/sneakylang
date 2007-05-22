@@ -90,7 +90,7 @@ class TestSupportedMethods(TestCase):
         self.assertEquals(n2, n1.children[0])
         self.assertEquals(n3, n2.children[0])
         self.assertEquals(n4, n2.children[1])
-    
+
     def testSettingActualNodeByInstance(self):
         # first build some tree
         n1 = DummyNode()
@@ -105,10 +105,10 @@ class TestSupportedMethods(TestCase):
         self.assertEquals(n2, self.builder.actual_node)
         self.builder.append(n4, False)
         self.assertEquals(n2, self.builder.actual_node)
-        
+
         self.builder.set_actual_node(n4)
         self.assertEquals(n4, self.builder.actual_node)
-        
+
         self.assertRaises(ValueError, lambda:self.builder.set_actual_node(DummyNode()))
 
     def testListAdding(self):
@@ -129,6 +129,21 @@ class TestSupportedMethods(TestCase):
         self.assertEquals(n2, n1.children[2])
         self.assertEquals(n3, n1.children[3])
         self.assertEquals(n3, self.builder.actual_node)
+
+    def testNodeReplacing(self):
+        n1 = DummyNode()
+        n2 = DummyNode()
+        n3 = DummyNode()
+        n4 = DummyNode()
+        self.builder.set_root(n1)
+        self.assertEquals(n1, self.builder.actual_node)
+
+        self.builder.add_childs([n2, n3], True)
+        self.builder.replace(n4)
+        self.assertEquals(n4, self.builder.actual_node)
+        self.builder.move_up()
+        self.assertEquals([n2,n4], self.builder.actual_node.children)
+
 
 class TestBuilderCalledByMacro(TestCase):
     def setUp(self):

@@ -35,7 +35,7 @@ class Node:
         self.children = []
         self.actual_text_content = None # actual TextNode to fill data in
 
-    def add_child(self, node):
+    def add_child(self, node, position=None):
         # It's Python, we use implicit interfaces - isinstance considered harmful
 #        if not isinstance(node, Node):
 #            raise ValueError, 'Child of node must be instance of Node'
@@ -46,7 +46,10 @@ class Node:
             self.actual_text_content = node
         else:
             self.actual_text_content = None
-        self.children.append(node)
+        if position is None:
+            self.children.append(node)
+        else:
+            self.children[position] = node
         # visit node as parent
         node.parent = self
 
