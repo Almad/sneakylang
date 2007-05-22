@@ -36,6 +36,7 @@ class Node:
         self.actual_text_content = None # actual TextNode to fill data in
 
     def add_child(self, node, position=None):
+        """ Add child or replace one at given position """
         # It's Python, we use implicit interfaces - isinstance considered harmful
 #        if not isinstance(node, Node):
 #            raise ValueError, 'Child of node must be instance of Node'
