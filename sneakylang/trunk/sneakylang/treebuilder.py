@@ -68,6 +68,8 @@ class TreeBuilder(object):
     def replace(self, node):
         if self._actual_node != self.root:
             self._actual_node.parent.add_child(node, position=self._actual_node.parent.children.index(self._actual_node))
+        else:
+            self.root = node
         self._actual_node = node
 
     def set_root(self, node):
@@ -87,7 +89,7 @@ class TreeBuilder(object):
     def set_actual_node(self, node):
         """ Traverse through node tree, find given node instance and set it as active node.
         If node is not found, raise ValueError """
-        if not self.root is None and self.get_node_from_children(node, self.root.children) == node:
+        if self.root == node or (self.root is not None and self.get_node_from_children(node, self.root.children) == node):
             self._actual_node = node
         else:
             raise ValueError, 'Node %s not found in tree' % node

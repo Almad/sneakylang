@@ -143,6 +143,9 @@ class TestSupportedMethods(TestCase):
         self.assertEquals(n4, self.builder.actual_node)
         self.builder.move_up()
         self.assertEquals([n2,n4], self.builder.actual_node.children)
+        self.builder.set_actual_node(n1)
+        self.builder.replace(n4)
+        self.assertEquals(n4, self.builder.root)
 
 
 class TestBuilderCalledByMacro(TestCase):
