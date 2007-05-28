@@ -45,6 +45,15 @@ class TreeBuilder(object):
             self._actual_node = node
 
     @root_required
+    def insert(self, node, index, move_actual=True):
+        if self._actual_node is None:
+            self.tree.insert(node, index)
+        else:
+            self._actual_node.insert_child(node, index)
+        if move_actual is True:
+            self._actual_node = node
+
+    @root_required
     def move_up(self):
         if self.actual_node.parent is None:
             raise ValueError, 'Cannot move up as there is no parent of current node'

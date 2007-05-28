@@ -60,6 +60,21 @@ class TestSupportedMethods(TestCase):
         self.assertEquals(self.builder.actual_node.parent, n1)
         self.assertEquals(n2, n1.children[0])
 
+    def testNodeInserting(self):
+        n1 = DummyNode()
+        n2 = DummyNode()
+        n3 = DummyNode()
+        self.builder.set_root(n1)
+        self.assertEquals(self.builder.actual_node, n1)
+        self.builder.append(n2, move_actual=True)
+        self.assertEquals(self.builder.actual_node, n2)
+        self.assertEquals(self.builder.actual_node.parent, n1)
+        self.assertEquals(n2, n1.children[0])
+        self.builder.move_up()
+        self.builder.insert(n3, 0)
+        self.assertEquals([n3, n2], n1.children)
+
+
     def testTreeTraversing(self):
         n1 = DummyNode()
         n2 = DummyNode()

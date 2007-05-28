@@ -54,6 +54,18 @@ class Node:
         # visit node as parent
         node.parent = self
 
+    def insert_child(self, node, index):
+        """ Insert child on given position """
+        if isinstance(node, TextNode):
+            if self.actual_text_content is not None:
+                raise ValueError, 'Adding a text node, but one is alread present'
+            self.actual_text_content = node
+        else:
+            self.actual_text_content = None
+        self.children.insert(index, node)
+        # visit node as parent
+        node.parent = self
+
     def expand(self, format):
         for child in self.childs:
             child.expand(format)
