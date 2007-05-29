@@ -74,6 +74,20 @@ class TestSupportedMethods(TestCase):
         self.builder.insert(n3, 0)
         self.assertEquals([n3, n2], n1.children)
 
+    def testLastAddedChildRemembering(self):
+        n1 = DummyNode()
+        n2 = DummyNode()
+        n3 = DummyNode()
+        n4 = DummyNode()
+
+        self.builder.set_root(n1)
+        self.builder.append(n2, move_actual=True)
+        self.builder.move_up()
+        self.builder.insert(n3, 0, move_actual=False)
+        self.assertEquals([n3, n2], n1.children)
+        self.builder.append(n4)
+        self.assertEquals([n3, n4, n2], n1.children)
+
 
     def testTreeTraversing(self):
         n1 = DummyNode()

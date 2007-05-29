@@ -34,6 +34,7 @@ class Node:
         self.parent = None
         self.children = []
         self.actual_text_content = None # actual TextNode to fill data in
+        self.last_added_child = None
 
     def add_child(self, node, position=None):
         """ Add child or replace one at given position """
@@ -48,11 +49,15 @@ class Node:
         else:
             self.actual_text_content = None
         if position is None:
-            self.children.append(node)
+            if self.last_added_child:
+                self.children.insert(self.children.index(self.last_added_child)+1, node)
+            else:
+                self.children.append(node)
         else:
             self.children[position] = node
         # visit node as parent
         node.parent = self
+        self.last_added_child
 
     def insert_child(self, node, index):
         """ Insert child on given position """
@@ -65,6 +70,7 @@ class Node:
         self.children.insert(index, node)
         # visit node as parent
         node.parent = self
+        self.last_added_child = node
 
     def expand(self, format):
         for child in self.childs:
