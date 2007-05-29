@@ -68,8 +68,9 @@ class TreeBuilder(object):
 
     @root_required
     def add_childs(self, nodes, move_actual=True):
+        assert len(nodes) > 0
         for node in nodes:
-            self.add_child(node, False)
+            self.add_child(node, move_actual=False)
         if move_actual is True:
             self._actual_node = node
 

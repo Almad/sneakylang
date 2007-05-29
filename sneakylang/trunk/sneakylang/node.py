@@ -57,7 +57,7 @@ class Node:
             self.children[position] = node
         # visit node as parent
         node.parent = self
-        self.last_added_child
+        self.last_added_child = node
 
     def insert_child(self, node, index):
         """ Insert child on given position """

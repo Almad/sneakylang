@@ -75,6 +75,7 @@ class TestSupportedMethods(TestCase):
         self.assertEquals([n3, n2], n1.children)
 
     def testLastAddedChildRemembering(self):
+        ###FIXME: Refactor this to Node test
         n1 = DummyNode()
         n2 = DummyNode()
         n3 = DummyNode()
@@ -87,6 +88,7 @@ class TestSupportedMethods(TestCase):
         self.assertEquals([n3, n2], n1.children)
         self.builder.append(n4)
         self.assertEquals([n3, n4, n2], n1.children)
+        self.assertEquals(n4, n1.last_added_child)
 
 
     def testTreeTraversing(self):
@@ -144,20 +146,23 @@ class TestSupportedMethods(TestCase):
         n1 = DummyNode()
         n2 = DummyNode()
         n3 = DummyNode()
+        n4 = DummyNode()
+        n5 = DummyNode()
         self.builder.set_root(n1)
         self.assertEquals(n1, self.builder.actual_node)
 
-        self.builder.add_childs([n2, n3], False)
+        self.builder.add_childs([n2, n3], move_actual=False)
         self.assertEquals(n1, self.builder.actual_node)
         self.assertEquals(n1, self.builder.root)
         self.assertEquals(n2, n1.children[0])
         self.assertEquals(n3, n1.children[1])
+        self.assertEquals(n3, n1.last_added_child)
 
-        self.builder.add_childs([n2, n3], True)
+        self.builder.add_childs([n4, n5], True)
         self.assertEquals(n1, self.builder.root)
-        self.assertEquals(n2, n1.children[2])
-        self.assertEquals(n3, n1.children[3])
-        self.assertEquals(n3, self.builder.actual_node)
+        self.assertEquals(n4, n1.children[2])
+        self.assertEquals(n5, n1.children[3])
+        self.assertEquals(n5, self.builder.actual_node)
 
     def testNodeReplacing(self):
         n1 = DummyNode()
