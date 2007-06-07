@@ -22,7 +22,7 @@
 
 import unittest
 import imp
-import os
+import os, sys
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -41,6 +41,30 @@ def runTests(tests):
         suite.addTests(testSuite)
     unittest.TextTestRunner(verbosity=1, descriptions=1).run(suite)
 
+def main():
+    try:
+        import nose
+        cover = False
+        if len(sys.argv) > 1 and sys.argv[1] == "-c":
+            import coverage
+            coverage.start()
+            cover = True
+            sys.argv = []
+        nose.run()
+        if cover:
+            coverage.stop()
+            moduleList = [mod for name, mod in sys.modules.copy().iteritems()
+            if getattr(mod, '__file__', None) and
+            name.startswith('sneakylang.') and
+            'test' not in name
+            ]
+            moduleList.sort()
+            coverage.report(moduleList)
+
+    except ImportError:
+        # dirty unittest run
+        tests = getSuites()
+        runTests(tests)
+
 if __name__ == "__main__":
-    tests = getSuites()
-    runTests(tests)
+    main()
