@@ -87,8 +87,7 @@ class Parser(object):
 
     register = property(fget=get_register)
 
-
-def _get_text_node(stream, register, register_map, builder, state, force_first_char=False, opened_text_node=None):
+def _get_text_node(stream, register, register_map, builder, state, force_first_char=False, opened_text_node=None, whole_stream=None):
     if opened_text_node is None:
         tn = TextNode()
     else:
@@ -98,9 +97,12 @@ def _get_text_node(stream, register, register_map, builder, state, force_first_c
         tn.content = ''.join([tn.content, stream[0:1]])
         stream = stream[1:]
 
+    if whole_stream is None:
+        whole_stream = stream
+
     while True:
         try:
-            res = register.resolve_macro(stream, builder, state)
+            res = register.resolve_macro(stream, builder, state, whole_stream)
         except (ParserRollback, MacroCallError):
             pass
         else:
@@ -138,10 +140,11 @@ def parse(stream, register_map, register=None, parsers=None, state=None, builder
 
     opened_text_node = None
 
+    whole_stream = stream
     while len(stream) > 0:
         assert type(stream) == type(''), stream
         try:
-            macro, stream_new = register.resolve_macro(stream, builder, state)
+            macro, stream_new = register.resolve_macro(stream, builder, state, whole_stream)
             if macro is not None and stream_new is not None:
                 # negation in effect?
                 if opened_text_node is not None and opened_text_node.content.endswith(NEGATION_CHAR):
@@ -155,14 +158,14 @@ def parse(stream, register_map, register=None, parsers=None, state=None, builder
                 opened_text_node = None
             else:
                 # macro not resolved, add text node
-                node, stream = _get_text_node(stream, register, register_map, builder, state, opened_text_node=opened_text_node)
+                node, stream = _get_text_node(stream, register, register_map, builder, state, opened_text_node=opened_text_node, whole_stream=whole_stream)
                 if opened_text_node is None:
                     builder.append(node, move_actual=False)
                 opened_text_node=node
         except (ParserRollback, MacroCallError):
             #badly resolved macro
             logging.debug('Catched ParseRollback, forcing text char')
-            node, stream = _get_text_node(stream, register, register_map, builder, state, True, opened_text_node=opened_text_node)
+            node, stream = _get_text_node(stream, register, register_map, builder, state, True, opened_text_node=opened_text_node, whole_stream=whole_stream)
             if opened_text_node is None:
                 builder.append(node, move_actual=False)
             opened_text_node=node

@@ -45,7 +45,7 @@ class ParserRegister:
 
     def __init__(self, parsers=None):
         self.parser_start = {}
-        self.parser_start_compiled = {}
+        #self.parser_start_compiled = {}
 
         if parsers is not None:
             for parser in parsers:
@@ -54,12 +54,12 @@ class ParserRegister:
     def add(self, parser):
         if parser.start is not None:
             for start in parser.start:
-                self.parser_start[start] = parser
-                self.parser_start_compiled[compile(''.join(['^', start]))] = parser
+                self.parser_start[start] = (compile(''.join(['^', start])), parser)
+                #self.parser_start_compiled[compile(''.join(['^', start]))] = parser
 
     def get_parser(self, regexp):
         try:
-            return self.parser_start[regexp]
+            return self.parser_start[regexp][1]
         except KeyError:
             raise ValueError, 'No Parser in register starting with %s' % regexp
 
@@ -73,13 +73,25 @@ class ParserRegister:
                 length = len(m.string[m.start():m.end()])
         if most is None:
             return (None, None)
-        return (self.parser_start[most.re.pattern[1:]], most.string[most.start():most.end()])
+        return (self.parser_start[most.re.pattern[1:]][1], most.string[most.start():most.end()])
 
-    def resolve_parser(self, stream, register):
+    def resolve_parser(self, stream, register, whole_stream=None):
         """ Resolve parser stream.
         Return properly initialized parser or None
         """
-        matching = [parser_start.match(stream) for parser_start in self.parser_start_compiled if parser_start.match(stream)]
+	if whole_stream is None:
+            whole_stream = stream
+
+	matching = []
+	for start in self.parser_start:
+            compiled, parser = self.parser_start[start]
+            if start.find('^') != -1:
+		if compiled.match(whole_stream):
+                    matching.append(compiled.match(whole_stream))
+	    else:
+                if compiled.match(stream):
+                    matching.append(compiled.match(stream))
+        #matching = [parser_start.match(stream) for parser_start in self.parser_start_compiled if parser_start.match(stream)]
         if len(matching) == 0:
             return None
         parser, chunk = self._most_matching(matching)
@@ -145,8 +157,11 @@ class Register:
         else:
             raise ValueError, 'Unexpected exception, please report this as bug'
 
-    def resolve_macro(self, stream, builder, state=None):
-        parser = self.parser_register.resolve_parser(stream, self)
+    def resolve_macro(self, stream, builder, state=None, whole_stream=None):
+        if whole_stream is None:
+            whole_stream = stream
+
+        parser = self.parser_register.resolve_parser(stream, self, whole_stream)
         if parser is not None:
             # Macro resolved in alternate syntax, use parser to get pacro
             macro, stream_new = parser.get_macro(builder, state)
