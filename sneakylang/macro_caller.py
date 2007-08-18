@@ -111,6 +111,49 @@ def resolve_name_from_register(stream, register):
     else:
         return None
 
+def strip_long_argument_chunk(line, buffer):
+    if line.startswith(LONG_ARGUMENT_BEGIN) and LONG_ARGUMENT_END in line[len(LONG_ARGUMENT_BEGIN):]:
+        line, buffer = move_chars(line[0:len(LONG_ARGUMENT_BEGIN)], line, buffer)
+        line, buffer = move_chars(line[0:line.find(LONG_ARGUMENT_END)+len(LONG_ARGUMENT_END)], line, buffer)
+        return (line, buffer)
+    else:
+        return (line, buffer)
+
+def move_chars(chunk, strfrom, strto):
+    """ Move chunk from beginning of strfrom to end of strto """
+    if not strfrom.startswith(chunk):
+        raise ValueError("From string must begin with chunk")
+    
+    strfrom = strfrom[len(chunk):]
+    strto += chunk
+    
+    return (strfrom, strto)
+    
+
+def get_nested_macro_chunk(line):
+    if line.startswith(MACRO_BEGIN) and MACRO_END in line:
+        buffer = ''
+        orig_line = line
+        line, buffer = move_chars(line[0:len(MACRO_BEGIN)], line, buffer)
+        while len(line) > 0:
+            if line.startswith(LONG_ARGUMENT_BEGIN):
+                line, buffer = strip_long_argument_chunk(line, buffer)
+            if line.startswith(MACRO_BEGIN):
+                nested_chunk = get_nested_macro_chunk(line)
+                if nested_chunk is not None:
+                    line, buffer = move_chars(line[len(chunk):], line, buffer)
+            if line.startswith(MACRO_END):
+                line, buffer = move_chars(line[0:len(MACRO_END)], line, buffer)
+                return buffer
+            
+            line, buffer = move_chars(line[0], line, buffer)
+        
+        # parsed line with no result
+        return None
+        
+    else:
+        return line
+
 def get_content(stream):
     """ Return content of macro or None if proper end not resolved """
     if not ALLOW_MULTILINE_MACRO:
@@ -120,8 +163,10 @@ def get_content(stream):
             return None
         # FIXME: Remember for )) in "enclosed argument", which should be
         # not considered as macro end
-        return this_line.split(MACRO_END)[0]
-
+        
+        # speeding most macros up
+        if LONG_ARGUMENT_BEGIN not in this_line and MACRO_BEGIN not in this_line:
+            return this_line.split(MACRO_END)[0]
 
     else:
         raise NotImplementedError, 'Multiline macros not implemented yet'

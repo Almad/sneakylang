@@ -23,9 +23,6 @@
 ###
 
 from os import pardir, tmpfile, remove
-from os.path import join
-import sys
-sys.path.insert(0, join(pardir, pardir))
 import logging
 import re
 
@@ -105,5 +102,3 @@ class TestNestedMacroSyntax(TestCase):
         self.assertEquals(o.children[0].children[1].__class__, TextNode)
         self.assertEquals(o.children[0].children[1].content, ' text odstavce')
 
-if __name__ == "__main__":
-    main()

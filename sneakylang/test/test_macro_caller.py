@@ -46,6 +46,19 @@ class TestArgumentParsing(TestCase):
         self.assertEquals(["testing arg", "argument"], parse_macro_arguments('"testing arg" argument'))
         self.assertEquals(["arg", "harg", "testing arg", "argument"], parse_macro_arguments('arg "harg" "testing arg" argument'))
 
+class TestHelperFunctions(TestCase):
+    def test_strip_long_argument_chunk(self):
+        self.assertEquals((" aaa", '"testing chunk"'), strip_long_argument_chunk('"testing chunk" aaa', ''))
+        self.assertEquals(('"testing chunkaaa', ''), strip_long_argument_chunk('"testing chunkaaa', ''))
+    
+    def test_move_chars(self):    
+        self.assertEquals(('ba', 'a'), move_chars("a", "aba", ""))
+        self.assertRaises(ValueError, lambda:move_chars("a", "zzz", ""))
+    
+    def test_nested_macro_chunk(self):
+        self.assertEquals("((yess))", get_nested_macro_chunk("((yess))"))
+        
+    
 class TestMacroCaller(TestCase):
     def setUp(self):
         self.reg = Register([DummyMacro])
