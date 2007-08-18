@@ -1,13 +1,5 @@
 # -*- coding: utf-8 -*-
 
-""" Set of funcitons and constants
-needed to perform proper call when calling macros with
-extensive syntax ((macro_name argument argument))
-
-All those functions are meant to be overwritten by
-implementation and should be as forward-compatible as possible.
- """
-
 ###
 # SneakyLang: Extensible WikiFramework
 # Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
@@ -28,6 +20,15 @@ implementation and should be as forward-compatible as possible.
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 ###
+
+""" Set of funcitons and constants
+needed to perform proper call when calling macros with
+extensive syntax ((macro_name argument argument))
+
+All those functions are meant to be overwritten by
+implementation and should be as forward-compatible as possible.
+ """
+
 
 import re
 import logging
