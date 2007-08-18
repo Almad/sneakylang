@@ -162,10 +162,6 @@ def get_content(stream):
         if MACRO_END not in this_line:
             return None
        
-        # speeding most macros up
-        if MACRO_BEGIN not in this_line or (LONG_ARGUMENT_BEGIN not in this_line and MACRO_BEGIN not in this_line):
-            return this_line.split(MACRO_END)[0]
-        
         buffer = ''
         line = this_line
         while len(line) > 0:
