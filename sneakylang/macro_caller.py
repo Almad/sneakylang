@@ -141,7 +141,7 @@ def get_nested_macro_chunk(line):
             if line.startswith(MACRO_BEGIN):
                 nested_chunk = get_nested_macro_chunk(line)
                 if nested_chunk is not None:
-                    line, buffer = move_chars(line[len(chunk):], line, buffer)
+                    line, buffer = move_chars(line[len(nested_chunk):], line, buffer)
             if line.startswith(MACRO_END):
                 line, buffer = move_chars(line[0:len(MACRO_END)], line, buffer)
                 return buffer
@@ -161,12 +161,27 @@ def get_content(stream):
         this_line = stream.split('\n')[0]
         if MACRO_END not in this_line:
             return None
-        # FIXME: Remember for )) in "enclosed argument", which should be
-        # not considered as macro end
-        
+       
         # speeding most macros up
-        if LONG_ARGUMENT_BEGIN not in this_line and MACRO_BEGIN not in this_line:
+        if MACRO_BEGIN not in this_line or (LONG_ARGUMENT_BEGIN not in this_line and MACRO_BEGIN not in this_line):
             return this_line.split(MACRO_END)[0]
+        
+        buffer = ''
+        line = this_line
+        while len(line) > 0:
+            if line.startswith(LONG_ARGUMENT_BEGIN):
+                line, buffer = strip_long_argument_chunk(line, buffer)
+            if line.startswith(MACRO_BEGIN):
+                nested_chunk = get_nested_macro_chunk(line)
+                if nested_chunk is not None:
+                    line, buffer = move_chars(line[0:len(nested_chunk)], line, buffer)
+            if line.startswith(MACRO_END):
+                return buffer
+            
+            line, buffer = move_chars(line[0], line, buffer)
+        
+        return buffer
+        
 
     else:
         raise NotImplementedError, 'Multiline macros not implemented yet'

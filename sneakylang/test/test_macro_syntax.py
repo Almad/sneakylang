@@ -96,7 +96,7 @@ class TestNestedMacroSyntax(TestCase):
         o = parse(s, self.register_map, document_root=True)
         self.assertEquals(len(o.children), 1)
         self.assertEquals(o.children[0].__class__, ParagraphNode)
-        self.assertEquals(o.children[0].children[0].__class__, Strong)
+        self.assertEquals(o.children[0].children[0].__class__, StrongNode)
         self.assertEquals(o.children[0].children[0].children[0].__class__, TextNode)
         self.assertEquals(o.children[0].children[0].children[0].content, 'silny')
         self.assertEquals(o.children[0].children[1].__class__, TextNode)
