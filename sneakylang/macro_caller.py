@@ -176,6 +176,8 @@ def get_content(stream):
                 if nested_chunk is not None:
                     line, buffer = move_chars(line[0:len(nested_chunk)], line, buffer)
             if line.startswith(MACRO_END):
+                # we're not appending content because our MACRO_END is in stream,
+                # but we won't include it as content
                 return buffer
             
             line, buffer = move_chars(line[0], line, buffer)
