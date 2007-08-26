@@ -84,13 +84,6 @@ class TestNestedMacroSyntax(TestCase):
             Document : Register([ParagraphMacro])
         })
 
-        self.expanderMap = {
-             'docbook5' : {
-                 ParagraphNode : ParagraphDocbookExpand,
-                 TextNode : TextNodeExpander
-             }
-        }
-
     def testProperNested(self):
         s = '((odstavec ((silne silny)) text odstavce))'
         o = parse(s, self.register_map, document_root=True)
