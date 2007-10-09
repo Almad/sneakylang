@@ -1,0 +1,8 @@
+syntax: glob
+*.pyc
+babel*
+*.conf
+*.swp
+.project
+.pydevproject
+build
