@@ -38,7 +38,7 @@ required_python_version = '2.4'
 # arguments for the setup command
 ###############################################################################
 name = "sneakylang"
-version = "0.3_alpha1"
+version = sneakylang.__versionstr___
 desc = "Extensible framework for easy creation of extensible WikiLanguages"
 long_desc = """"""
 classifiers=[

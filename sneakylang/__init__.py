@@ -3,6 +3,7 @@
 """ SneakyLang: Extensible WikiFramework """
 
 __version__ = [0.3, "alpha", 3]
+__versionstr__ = "0.3_alpha3"
 
 ###
 # SneakyLang: Extensible WikiFramework
