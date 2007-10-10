@@ -34,12 +34,32 @@ class RegisterMap(dict):
         for k in self:
             self.__after_add(k)
 
+        self.hooks = {}
+
     def __after_add(self, k):
         self[k].visit_register_map(self)
 
     def __setitem__(self, k, v):
         dict.__setitem__(self, k,v)
         self.__after_add(k)
+
+    def add_hooks(self, hooks):
+        for hook in hooks:
+            if hook.macro:
+                if not self.hooks.has_key(hook.macro):
+                    self.hooks[hook.macro] = set()
+                self.hooks[hook.macro].add(hook)
+
+    def pre_hooks(self, stream, macro, builder):
+        if macro.__class__ in self.hooks:
+            for hook in self.hooks[macro.__class__]:
+                stream = hook().pre_macro(stream, macro, builder)
+        return stream
+
+    def post_hooks(self, macro, builder):
+        if macro.__class__ in self.hooks:
+            for hook in self.hooks[macro.__class__]:
+                hook().post_macro(macro, builder)
 
 class ParserRegister:
     """ Parser register is holding parsers (aka 'alternative syntaxes') allowed to use for parsing.

@@ -155,7 +155,9 @@ def parse(stream, register_map, register=None, parsers=None, state=None, builder
                     raise ParserRollback, "Negation resolved"
 
                 logging.debug('Resolved macro %s' % macro)
+                stream_new = register_map.pre_hooks(stream_new, macro, builder)
                 macro.expand(builder=builder, state=state)
+                register_map.post_hooks(macro, builder)
                 stream = stream_new
                 opened_text_node = None
             else:
