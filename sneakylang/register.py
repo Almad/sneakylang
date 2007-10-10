@@ -25,6 +25,8 @@ from re import compile
 from expanders import Expander
 from macro_caller import get_macro_name, expand_macro_from_stream
 
+__all__ = ['ExpanderRegister', 'ParserRegister', 'Register', 'RegisterMap']
+
 class RegisterMap(dict):
     """ Register map is dictionary holding macro : register_with_allowed_macros pair """
     def __init__(self, *args, **kwargs):

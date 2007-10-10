@@ -26,6 +26,9 @@
 
 from cgi import escape
 from err import *
+
+__all__ = ['Expander', 'TextNodeExpander', 'expand']
+
 class Expander:
     def expand(self, node, format, node_map):
         pass

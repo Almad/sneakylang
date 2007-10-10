@@ -25,6 +25,8 @@
 import re
 
 import os, sys
+import logging
+logging = logging.getLogger('sneakylang')
 
 WORKING_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir))
 

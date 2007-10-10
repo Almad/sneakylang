@@ -29,6 +29,8 @@ from macro import Macro
 from parser import Parser, parse
 from node import Node
 
+__all__ = ['Document', 'DocumentParser', 'DocumentNode']
+
 class Document(Macro):
     name = 'document'
     help = '<toto makro se nikdy nepouziva explicitne>'

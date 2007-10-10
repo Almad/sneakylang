@@ -29,6 +29,8 @@ import logging
 
 from expanders import *
 
+__all__ = ['Node', 'TextNode']
+
 class Node:
     def __init__(self):
         self.parent = None

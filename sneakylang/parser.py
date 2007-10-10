@@ -37,6 +37,8 @@ from treebuilder import TreeBuilder
 #FIXME
 NEGATION_CHAR = "!"
 
+__all__ = ['Parser', 'parse']
+
 class Parser(object):
     """ All parsers should derivate from this class """
     start = []

@@ -25,6 +25,7 @@
 
 import re
 import logging
+logging = logging.getLogger('sneakylang')
 
 from err import *
 import node
