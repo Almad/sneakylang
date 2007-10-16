@@ -47,8 +47,8 @@ class TestMacro(TestCase):
 
     def testDefaultArgumentParsing(self):
         macro = DummyMacro(self.reg_map, TreeBuilder())
-        macro.parse_argument_string("arg arg2")
-        self.assertEquals(macro.arguments, ['arg', 'arg2'])
+        macro.parse_argument_string(u"arg arg2")
+        self.assertEquals(macro.arguments, [u'arg', u'arg2'])
 
 if __name__ == "__main__":
     main()

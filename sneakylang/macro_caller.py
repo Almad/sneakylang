@@ -32,23 +32,22 @@ implementation and should be as forward-compatible as possible.
 
 import re
 import logging
-from types import StringType
 
 from err import *
 
-ARGUMENT_SEPARATOR = ' '
+ARGUMENT_SEPARATOR = u' '
 
 # separator between macro name and it's argus
 # should be f.e. ( if macro syntax whould be #macro_name(arg,arg,arg)
-MACRO_NAME_ARGUMENT_SEPARATOR = ' '
+MACRO_NAME_ARGUMENT_SEPARATOR = u' '
 
 # macro_begin should be either string (faster),
 # or compiled re pattern object (allows more complex macro syntax)
 # pattern object should begin with ^ as search is performed and macro
 # on beginning of the string assumed
-MACRO_BEGIN = '(('
+MACRO_BEGIN = u'(('
 
-MACRO_END = '))'
+MACRO_END = u'))'
 
 # Whether macro must be oneliner ((macro arg arg)), or should be defined multiline
 # ((macro
@@ -57,8 +56,8 @@ MACRO_END = '))'
 # ))
 ALLOW_MULTILINE_MACRO = False
 
-LONG_ARGUMENT_BEGIN = '"'
-LONG_ARGUMENT_END = '"'
+LONG_ARGUMENT_BEGIN = u'"'
+LONG_ARGUMENT_END = u'"'
 
 
 def parse_macro_arguments(argument_string):
@@ -66,24 +65,24 @@ def parse_macro_arguments(argument_string):
         return None
 
     args = []
-    buffer = ''
+    buffer = u''
     in_long_argument = False
 
     for char in argument_string:
-        if in_long_argument and char is not LONG_ARGUMENT_END:
-            buffer = ''.join([buffer, char])
-        elif in_long_argument and char is LONG_ARGUMENT_END:
+        if in_long_argument and char != LONG_ARGUMENT_END:
+            buffer = u''.join([buffer, char])
+        elif in_long_argument and char == LONG_ARGUMENT_END:
             in_long_argument = False
         else:
-            if char is not ARGUMENT_SEPARATOR:
-                if char is LONG_ARGUMENT_BEGIN:
+            if char != ARGUMENT_SEPARATOR:
+                if char == LONG_ARGUMENT_BEGIN:
                     in_long_argument = True
                 else:
-                    buffer = ''.join([buffer, char])
+                    buffer = u''.join([buffer, char])
             else:
                 if len(buffer) > 0:
                     args.append(buffer)
-                buffer = ''
+                buffer = u''
     if len(buffer) > 0:
         args.append(buffer)
 
@@ -91,7 +90,7 @@ def parse_macro_arguments(argument_string):
 
 def resolve_macro_name(stream):
     """ Resolve macro name. Return tuple(macro_name, string_with_macro_arguments) """
-    if isinstance(MACRO_NAME_ARGUMENT_SEPARATOR, StringType):
+    if isinstance(MACRO_NAME_ARGUMENT_SEPARATOR, str) or isinstance(MACRO_NAME_ARGUMENT_SEPARATOR, unicode):
         # if name_argument separator not in stream, then no argument given - return whole string
         # Please report other use-cases as bug
         res = stream.split(MACRO_NAME_ARGUMENT_SEPARATOR)
@@ -123,12 +122,12 @@ def move_chars(chunk, strfrom, strto):
     """ Move chunk from beginning of strfrom to end of strto """
     if not strfrom.startswith(chunk):
         raise ValueError("From string must begin with chunk")
-    
+
     strfrom = strfrom[len(chunk):]
     strto += chunk
-    
+
     return (strfrom, strto)
-    
+
 
 def get_nested_macro_chunk(line):
     if line.startswith(MACRO_BEGIN) and MACRO_END in line:
@@ -145,12 +144,12 @@ def get_nested_macro_chunk(line):
             if line.startswith(MACRO_END):
                 line, buffer = move_chars(line[0:len(MACRO_END)], line, buffer)
                 return buffer
-            
+
             line, buffer = move_chars(line[0], line, buffer)
-        
+
         # parsed line with no result
         return None
-        
+
     else:
         return line
 
@@ -161,7 +160,7 @@ def get_content(stream):
         this_line = stream.split('\n')[0]
         if MACRO_END not in this_line:
             return None
-       
+
         buffer = ''
         line = this_line
         while len(line) > 0:
@@ -175,11 +174,11 @@ def get_content(stream):
                 # we're not appending content because our MACRO_END is in stream,
                 # but we won't include it as content
                 return buffer
-            
+
             line, buffer = move_chars(line[0], line, buffer)
-        
+
         return buffer
-        
+
 
     else:
         raise NotImplementedError, 'Multiline macros not implemented yet'
@@ -197,7 +196,7 @@ def get_macro_name(stream, register):
     """
 
     # first resolve if macro syntax
-    if isinstance(MACRO_BEGIN, StringType):
+    if isinstance(MACRO_BEGIN, str) or isinstance(MACRO_BEGIN, unicode):
         if not stream.startswith(MACRO_BEGIN):
             return None
         else:
@@ -221,12 +220,12 @@ def expand_macro_from_stream(stream, register, builder, state):
     return tuple(macro_instance, stripped_stream)
     """
     #FIXME: OMG, get this regexp syntax working
-    if not isinstance(MACRO_BEGIN, StringType):
-        raise NotImplementedError, 'MACRO_BEGIN must be string, regular expressions not yet supported'
+    if not isinstance(MACRO_BEGIN, unicode) and not isinstance(MACRO_BEGIN, str):
+        raise NotImplementedError('MACRO_BEGIN must be (unicode) string, regular expressions not yet supported')
 
     macro_content = get_content(stream[len(MACRO_BEGIN):])
     # assuming macro previously resolved in context
     name, args = resolve_macro_name(macro_content)
-    assert type(args) in (type(None), type('')), str(args)
+    assert type(args) in (type(None), type(''), type(u'')), str(args)
     new_stream = stream[len(MACRO_BEGIN)+len(macro_content)+len(MACRO_END):]
     return (register.macro_map[name].argument_call(args, register, builder, state), new_stream)

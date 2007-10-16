@@ -96,7 +96,7 @@ def _get_text_node(stream, register, register_map, builder, state, force_first_c
         tn = opened_text_node
 
     if force_first_char is True:
-        tn.content = ''.join([tn.content, stream[0:1]])
+        tn.content = u''.join([tn.content, stream[0:1]])
         stream = stream[1:]
 
     if whole_stream is None:
@@ -112,13 +112,16 @@ def _get_text_node(stream, register, register_map, builder, state, force_first_c
                 break
         if len(stream) == 0:
             break
-        tn.content = ''.join([tn.content, stream[0:1]])
+        tn.content = u''.join([tn.content, stream[0:1]])
         stream = stream[1:]
     return (tn, stream)
 
 def parse(stream, register_map, register=None, parsers=None, state=None, builder=None, document_root=False):
     if builder is None:
         builder = TreeBuilder()
+
+    if isinstance(stream, str):
+        stream = stream.decode('utf-8')
 
     if builder.root is None:
         if document_root is True:
@@ -144,7 +147,7 @@ def parse(stream, register_map, register=None, parsers=None, state=None, builder
 
     whole_stream = stream
     while len(stream) > 0:
-        assert type(stream) == type(''), stream
+        assert isinstance(stream, unicode) == True, stream
         try:
             macro, stream_new = register.resolve_macro(stream, builder, state, whole_stream)
             if macro is not None and stream_new is not None:

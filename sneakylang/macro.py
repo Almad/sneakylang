@@ -53,14 +53,14 @@ class Macro(object):
         return parse_macro_arguments(argument_string)
 
     def parse_argument_string(self, argument_string):
-        if argument_string is not None and argument_string is not '':
+        if argument_string is not None and argument_string not in (u'', ''):
             self.arguments = self.get_argument_list(argument_string)
 
     @classmethod
     def argument_call(cls, argument_string, register, builder, state):
         """ argument_string - string as it would be called by macro syntax
         returns properly istantiazed macro, ready call expand() function """
-        assert type(argument_string) in (type(None), type('')), str(argument_string)
+        assert type(argument_string) in (type(None), type(''), type(u'')), str(argument_string)
         macro_instance = cls(register.register_map, builder, state)
         macro_instance.parse_argument_string(argument_string)
         return macro_instance

@@ -58,6 +58,10 @@ class AnotherDummyParser(Parser):
     start = ['--']
     macro = AnotherDummyMacro
 
+class NationalParser(Parser):
+    start = ['(\w){3}']
+    macro = AnotherDummyMacro
+
 class NotAllowedParserCreatingCollisionWithMacro(Parser):
     # already in register
     start = ['^(\(){2}$']
@@ -106,6 +110,14 @@ class TestParserRegister(TestCase):
         reg = ParserRegister([DummyParserTwo, DummyParser])
         self.assertEquals(reg.resolve_parser('#### 123', Register()).__class__, DummyParser)
         self.assertEquals(reg.resolve_parser('#####', Register()).__class__, DummyParserTwo)
+
+    def testProperResolvingWithNationalChars(self):
+        reg = ParserRegister([NationalParser])
+        self.assertEquals(reg.resolve_parser('žšť', Register()).__class__, NationalParser)
+
+    def testAcceptingUnicodeString(self):
+        reg = ParserRegister([NationalParser])
+        self.assertEquals(reg.resolve_parser(u'žšť', Register()).__class__, NationalParser)
 
 class TestRegister(TestCase):
 

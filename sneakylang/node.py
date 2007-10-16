@@ -82,8 +82,6 @@ class Node:
             if not self.expanders.has_key(format):
                 raise NotImplementedError, "Macro %s does not support transformation to %s" % (self.name, format)
             self.expanders[format].expand(self.text_content)
-#    def __str__(self):
-#        return ''.join(['['] + [str(child) for child in self.children] + [']'])
 
 class TextNode(Node):
     """ Special Node holding text.
@@ -91,12 +89,12 @@ class TextNode(Node):
     begin/end of any macro.
     Could not have any children.
     """
-    def  __init__(self, content='', *args, **kwargs):
+    def  __init__(self, content=u'', *args, **kwargs):
         self.content = content
         Node.__init__(self, *args, **kwargs)
 
     def add_char(self, char):
-        self.content = ''.join([self.content, str(char)])
+        self.content = u''.join([self.content, unicode(char)])
 
 #    def __str__(self):
 #        return str(self.content)

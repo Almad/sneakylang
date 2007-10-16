@@ -41,7 +41,7 @@ def expand(node_list, format, node_map):
     if type(node_list) != type([]):
         node_list = [node_list]
     try:
-        return ''.join([node_map[format][node.__class__]().expand(node, format, node_map) for node in node_list])
+        return u''.join([node_map[format][node.__class__]().expand(node, format, node_map) for node in node_list])
     except KeyError:
         if not node_map.has_key(format):
             raise ExpanderError("Format not supported")

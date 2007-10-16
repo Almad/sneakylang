@@ -38,19 +38,19 @@ from sneakylang.treebuilder import TreeBuilder
 
 class TestArgumentParsing(TestCase):
     def testParsingShortArgument(self):
-        self.assertEquals(None, parse_macro_arguments(""))
-        self.assertEquals(["test"], parse_macro_arguments("test"))
-        self.assertEquals(["testing", "args"], parse_macro_arguments("testing args"))
+        self.assertEquals(None, parse_macro_arguments(u""))
+        self.assertEquals([u"test"], parse_macro_arguments(u"test"))
+        self.assertEquals([u"testing", u"args"], parse_macro_arguments(u"testing args"))
 
     def testParsingLongArgument(self):
-        self.assertEquals(["testing arg"], parse_macro_arguments('"testing arg"'))
-        self.assertEquals(["testing arg", "argument"], parse_macro_arguments('"testing arg" argument'))
-        self.assertEquals(["arg", "harg", "testing arg", "argument"], parse_macro_arguments('arg "harg" "testing arg" argument'))
+        self.assertEquals([u"testing arg"], parse_macro_arguments(u'"testing arg"'))
+        self.assertEquals([u"testing arg", u"argument"], parse_macro_arguments(u'"testing arg" argument'))
+        self.assertEquals([u"arg", u"harg", u"testing arg", u"argument"], parse_macro_arguments(u'arg "harg" "testing arg" argument'))
 
 class TestHelperFunctions(TestCase):
     def test_strip_long_argument_chunk(self):
-        self.assertEquals((" aaa", '"testing chunk"'), strip_long_argument_chunk('"testing chunk" aaa', ''))
-        self.assertEquals(('"testing chunkaaa', ''), strip_long_argument_chunk('"testing chunkaaa', ''))
+        self.assertEquals((u" aaa", u'"testing chunk"'), strip_long_argument_chunk(u'"testing chunk" aaa', u''))
+        self.assertEquals((u'"testing chunkaaa', ''), strip_long_argument_chunk(u'"testing chunkaaa', u''))
 
     def test_move_chars(self):
         self.assertEquals(('ba', 'a'), move_chars("a", "aba", ""))

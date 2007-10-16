@@ -20,7 +20,7 @@
 ###
 
 import logging
-from re import compile
+from re import compile, UNICODE
 
 from expanders import Expander
 from macro_caller import get_macro_name, expand_macro_from_stream
@@ -76,14 +76,16 @@ class ParserRegister:
     def add(self, parser):
         if parser.start is not None:
             for start in parser.start:
-                self.parser_start[start] = (compile(''.join(['^', start])), parser)
+                if isinstance(start, str):
+                    start = start.decode('utf-8')
+                self.parser_start[start] = (compile(u''.join([u'^', start]), flags=UNICODE), parser)
                 #self.parser_start_compiled[compile(''.join(['^', start]))] = parser
 
     def get_parser(self, regexp):
         try:
             return self.parser_start[regexp][1]
         except KeyError:
-            raise ValueError, 'No Parser in register starting with %s' % regexp
+            raise ValueError('No Parser in register starting with %s' % regexp)
 
     def _most_matching(self, matching):
         """ Return most matching parser and chunk on which it's resolved """
@@ -170,16 +172,21 @@ class Register:
         """
 #        logging.debug('Trying to resolve macro in stream')
         try:
-            if type(stream) != type(''):
-                raise ValueError, stream
+            if not isinstance(stream, unicode):
+                raise TypeError("Stream expected to be unicode string, %s instead (stream: %s)" % (type(stream), stream))
             return self.macro_map[get_macro_name(stream, self)]
         except KeyError:
 #            logging.debug('Macro name %s not in my macro_map' % get_macro_name(stream,self))
             return None
         else:
-            raise ValueError, 'Unexpected exception, please report this as bug'
+            raise NotImplementedError,('Unexpected condition, please report this as bug')
 
     def resolve_macro(self, stream, builder, state=None, whole_stream=None):
+
+        # backward compatibility for tests
+        if isinstance(stream, str):
+            stream = stream.decode('utf-8')
+
         if whole_stream is None:
             whole_stream = stream
 
@@ -201,11 +208,11 @@ class ExpanderRegister:
         self.expander_map = {}
         for k in expander_map:
             if not isinstance(expander_map[k], Expander):
-                raise ValueError, '%s must be instance of Expander' % expander_map[k]
+                raise ValueError('%s must be instance of Expander' % expander_map[k])
             self.expander_map[k] = expander_map[k]
 
     def get(self, node, format='xhtml11'):
         try:
             return self.expander_map[format][node]
         except KeyError:
-            raise ValueError, 'Expander for format %s for node %s not in registry' % (format, node)
+            raise ValueError('Expander for format %s for node %s not in registry' % (format, node))
