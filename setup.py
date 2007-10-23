@@ -60,7 +60,7 @@ cp_license="LGPL"
 packages=[
     "sneakylang"
 ]
-download_url="http://projects.almad.net/sneakylang/wiki/Download"
+download_url="http://www.almad.net/download/sneakylang/sneakylang-"+version+".tar.gz"
 data_files=[]
 ###############################################################################
 # end arguments for setup
