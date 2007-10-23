@@ -49,7 +49,7 @@ def main():
             import coverage
             coverage.start()
             cover = True
-            sys.argv = []
+            del sys.argv[1]
         nose.run()
         if cover:
             coverage.stop()
