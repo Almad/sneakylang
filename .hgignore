@@ -6,3 +6,6 @@ babel*
 .project
 .pydevproject
 build
+
+*~
+*.orig
