@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-""" Parser transforming input streamn do DOM
+""" SneakyLang-specific errors
 """
 
 ###
