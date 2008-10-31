@@ -26,16 +26,9 @@ __versionstr__ = "0.3_alpha4"
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ###
 
-from err import *
-from register import *
-from expanders import *
-from macro import *
-from node import *
-from parser import *
-from document import *
-from treebuilder import *
-
-def parse_start(stream, register_map):
-    parser = DocumentParser(stream, register_map[document.DocumentParser], '', register_map)
-    documentNode = parser.parse()
-    return documentNode
+from document import Document
+from expanders import expand
+from macro import Macro
+from parser import parse
+from register import Register, RegisterMap
+from treebuilder import TreeBuilder
