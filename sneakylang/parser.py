@@ -7,7 +7,7 @@
 # SneakyLang: Extensible WikiFramework
 #Copyright (C) 2007 Lukas "Almad" Linhart http://www.almad.net/
 # and contributors, for complete list see
-# http://projects.almad.net/c~/projects/sneakylang/sneakylang/testzechtile/wiki/Contributors
+# http://projects.almad.net/sneakylang/wiki/Contributors
 #
 #This library is free software; you can redistribute it and/or
 #modify it under the terms of the GNU Lesser General Public

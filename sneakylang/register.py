@@ -112,7 +112,7 @@ class ParserRegister:
             if start.find('^') != -1:
 		if compiled.match(whole_stream):
                     matching.append(compiled.match(whole_stream))
-	    else:
+            else:
                 if compiled.match(stream):
                     matching.append(compiled.match(stream))
         #matching = [parser_start.match(stream) for parser_start in self.parser_start_compiled if parser_start.match(stream)]
