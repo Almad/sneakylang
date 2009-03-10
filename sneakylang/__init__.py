@@ -2,8 +2,8 @@
 
 """ SneakyLang: Extensible WikiFramework """
 
-__version__ = [0, 3, 0, "final"]
-__versionstr__ = "0.3.0"
+__version__ = [0, 3, 1, "dev"]
+__versionstr__ = "0.3.1-dev"
 
 from document import Document
 from expanders import expand
