@@ -30,14 +30,14 @@ long_desc = """"""
 classifiers=[
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD"
+    "License :: OSI Approved :: BSD",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Topic :: Software Development :: Documentation",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Text Processing",
     "Topic :: Text Processing :: Markup :: HTML",
-    "Topic :: Text Processing :: Markup :: XML"
+    "Topic :: Text Processing :: Markup :: XML",
 ]
 author="Lukas Almad Linhart"
 author_email="bugs@almad.net"
