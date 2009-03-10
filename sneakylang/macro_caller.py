@@ -37,6 +37,10 @@ from err import *
 
 ARGUMENT_SEPARATOR = u' '
 
+# keyword argument is a name followed by
+# KEYWORD_ARGUMENT_SEPARATOR and thenby LONG_ARGUMENT
+KEYWORD_ARGUMENT_SEPARATOR=u'='
+
 # separator between macro name and it's argus
 # should be f.e. ( if macro syntax whould be #macro_name(arg,arg,arg)
 MACRO_NAME_ARGUMENT_SEPARATOR = u' '
@@ -59,7 +63,7 @@ ALLOW_MULTILINE_MACRO = False
 LONG_ARGUMENT_BEGIN = u'"'
 LONG_ARGUMENT_END = u'"'
 
-
+#TODO: Refactor as parser. See #31
 def parse_macro_arguments(argument_string, return_kwargs=False):
     if len(argument_string) == 0:
         return None
@@ -67,25 +71,65 @@ def parse_macro_arguments(argument_string, return_kwargs=False):
     args = []
     kwargs = {}
     buffer = u''
+    kwarg_name_buffer = u''
     in_long_argument = False
+    current_kwarg_name = None
+    after_argument_separator = False
 
     for char in argument_string:
+        # first, append to buffers et al
         if in_long_argument and char != LONG_ARGUMENT_END:
             buffer = u''.join([buffer, char])
         elif in_long_argument and char == LONG_ARGUMENT_END:
             in_long_argument = False
-        else:
-            if char != ARGUMENT_SEPARATOR:
-                if char == LONG_ARGUMENT_BEGIN:
-                    in_long_argument = True
-                else:
-                    buffer = u''.join([buffer, char])
+        elif not in_long_argument and char == KEYWORD_ARGUMENT_SEPARATOR:
+            # we only accept kwargs if they're named
+            if kwarg_name_buffer:
+                # it sill only by used as dictionary name and that must not be u''
+                current_kwarg_name = kwarg_name_buffer.encode('utf-8')
+                kwarg_name_buffer = u''
+                # and kwarg must be removed from stream
+                buffer = buffer[:-len(current_kwarg_name)]
             else:
-                if len(buffer) > 0:
+                buffer = u''.join([buffer, char])
+        elif char != ARGUMENT_SEPARATOR:
+            # if char == LONG_ARGUMENT_BEGIN and (after_name_separator or after_kwargs_separator):
+            if char == LONG_ARGUMENT_BEGIN:
+                in_long_argument = True
+            else:
+                # could be both text and kwarg name
+                buffer = u''.join([buffer, char])
+                kwarg_name_buffer = u''.join([kwarg_name_buffer, char])
+        elif char == ARGUMENT_SEPARATOR:
+            if len(buffer) > 0:
+                if current_kwarg_name:
+                    if kwargs.has_key(current_kwarg_name):
+                        logging.debug(u"Macro argument already contains keyword argument %s (with value %s). Setting to %s" % (current_kwarg_name, kwargs[current_kwarg_name], buffer))
+                    kwargs[current_kwarg_name] = buffer
+                    current_kwarg_name = None
+                else:
                     args.append(buffer)
-                buffer = u''
+            buffer = u''
+            kwarg_name_buffer = u''
+        else:
+            raise NotImplementedError("char != ARGUMENT_SEPARATOR && char == ARGUMENT_SEPARATOR WTF?!?")
+
+        # then, set position flags
+        if char == ARGUMENT_SEPARATOR:
+            after_argument_separator = True
+        else:
+            after_argument_separator = False
+
     if len(buffer) > 0:
-        args.append(buffer)
+        # FIXME: This is cut& pasted from char == ARGUMENT_SEPARATOR
+        if len(buffer) > 0:
+            if current_kwarg_name:
+                if kwargs.has_key(current_kwarg_name):
+                    logging.debug(u"Macro argument already contains keyword argument %s (with value %s). Setting to %s" % (current_kwarg_name, kwargs[current_kwarg_name], buffer))
+                kwargs[current_kwarg_name] = buffer
+                current_kwarg_name = None
+            else:
+                args.append(buffer)
 
     if return_kwargs:
         return args, kwargs

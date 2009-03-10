@@ -192,12 +192,13 @@ class Register:
 
         parser = self.parser_register.resolve_parser(stream, self, whole_stream)
         if parser is not None:
-            # Macro resolved in alternate syntax, use parser to get pacro
+            # Macro resolved in alternate syntax, use parser to get macro
             macro, stream_new = parser.get_macro(builder, state)
             return (macro, stream_new)
 
         # resolve in macro syntax
         macro = self.resolve_parser_macro(stream)
+
         if macro is not None:
             return expand_macro_from_stream(stream, self, builder, state)
 

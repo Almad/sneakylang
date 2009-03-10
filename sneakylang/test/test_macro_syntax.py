@@ -83,3 +83,18 @@ class TestNestedMacroSyntax(TestCase):
         self.assertEquals(o.children[0].__class__, ParagraphNode)
         self.assertEquals(o.children[0].children[0].__class__, TextNode)
         self.assertEquals(o.children[0].children[0].content, 'silne silny)) text odstavce')
+
+class TestKeywordMacroArguments(TestCase):
+    def setUp(self):
+        self.register_map = RegisterMap({
+            PictureKeywordMacro : Register(),
+            Document : Register([PictureKeywordMacro]),
+        })
+
+    def test_kwargs_resolved(self):
+        s = '((picture http://pic.png title="My picture"))'
+        o = parse(s, self.register_map, document_root=True)
+        self.assertEquals(1, len(o.children))
+        self.assertEquals(PictureNode, o.children[0].__class__)
+        self.assertEquals(u"My picture", o.children[0].kwargs['title'])
+

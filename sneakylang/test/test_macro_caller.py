@@ -37,15 +37,29 @@ from sneakylang.treebuilder import TreeBuilder
 #logging.basicConfig(level=logging.DEBUG)
 
 class TestArgumentParsing(TestCase):
-    def testParsingShortArgument(self):
+    def testEmptyArgument(self):
         self.assertEquals(None, parse_macro_arguments(u""))
+
+    def testSingleWord(self):
         self.assertEquals([u"test"], parse_macro_arguments(u"test"))
+
+    def testWhitespaceSeparatedWords(self):
         self.assertEquals([u"testing", u"args"], parse_macro_arguments(u"testing args"))
 
-    def testParsingLongArgument(self):
+    def testLongArgumentWithinQuotation(self):
         self.assertEquals([u"testing arg"], parse_macro_arguments(u'"testing arg"'))
+
+    def testLongArgumentWithinQuotationWithSeparateWord(self):
         self.assertEquals([u"testing arg", u"argument"], parse_macro_arguments(u'"testing arg" argument'))
+
+    def testCombinationOfQuotedAndSeparatedWords(self):
         self.assertEquals([u"arg", u"harg", u"testing arg", u"argument"], parse_macro_arguments(u'arg "harg" "testing arg" argument'))
+
+    def testKeywordArgument(self):
+        self.assertEquals(([], {'argument' : 'testing arg'}), parse_macro_arguments(u'argument="testing arg"', return_kwargs=True))
+
+    def testKeywordMustBeNamed(self):
+        self.assertEquals((["blah", '="testing arg"'], {}), parse_macro_arguments(u'blah ="testing arg"', return_kwargs=True))
 
 class TestHelperFunctions(TestCase):
     def test_strip_long_argument_chunk(self):

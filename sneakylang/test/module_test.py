@@ -154,9 +154,18 @@ class StrongVistingMacro(Macro):
         self.builder.append(TextNode(content=content), move_actual=False)
         self.builder.move_up()
 
+class PictureNode(Node):
+    pass
+
 class PictureKeywordMacro(Macro):
     name = 'picture'
     help = '((picture http://pic.png title="My picture"))'
+
+    def expand_to_nodes(self, content, **kwargs):
+        node = PictureNode()
+        node.args = [content]
+        node.kwargs = kwargs
+        self.builder.append(node, move_actual=False)
 
 class Strong(Parser):
     start = ['("){2}']
