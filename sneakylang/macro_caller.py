@@ -74,7 +74,7 @@ def parse_macro_arguments(argument_string, return_kwargs=False):
     kwarg_name_buffer = u''
     in_long_argument = False
     current_kwarg_name = None
-    after_argument_separator = False
+    last_char = None
 
     for char in argument_string:
         # first, append to buffers et al
@@ -93,8 +93,16 @@ def parse_macro_arguments(argument_string, return_kwargs=False):
             else:
                 buffer = u''.join([buffer, char])
         elif char != ARGUMENT_SEPARATOR:
-            # if char == LONG_ARGUMENT_BEGIN and (after_name_separator or after_kwargs_separator):
-            if char == LONG_ARGUMENT_BEGIN:
+            if char == LONG_ARGUMENT_BEGIN and (
+                # we're at beginning of the string
+                last_char is None
+                or
+                # unnamed long argument
+                last_char == ARGUMENT_SEPARATOR
+                or
+                # keyword argument (must be named)
+                (last_char == KEYWORD_ARGUMENT_SEPARATOR and current_kwarg_name)
+            ):
                 in_long_argument = True
             else:
                 # could be both text and kwarg name
@@ -114,11 +122,8 @@ def parse_macro_arguments(argument_string, return_kwargs=False):
         else:
             raise NotImplementedError("char != ARGUMENT_SEPARATOR && char == ARGUMENT_SEPARATOR WTF?!?")
 
-        # then, set position flags
-        if char == ARGUMENT_SEPARATOR:
-            after_argument_separator = True
-        else:
-            after_argument_separator = False
+        # then, cache last char
+        last_char = char
 
     if len(buffer) > 0:
         # FIXME: This is cut& pasted from char == ARGUMENT_SEPARATOR

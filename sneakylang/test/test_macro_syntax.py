@@ -38,7 +38,7 @@ class TestSimpleResolving(TestCase):
         self.expanderMap = {
              'docbook5' : {
                  ParagraphNode : ParagraphDocbookExpand,
-                 TextNode : TextNodeExpander
+                 TextNode : TextNodeExpander,
              }
         }
 

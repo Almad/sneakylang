@@ -38,7 +38,7 @@ class TestArgumentParsing(TestCase):
         self.assertEquals(([], {'argument' : u'testing arg'}), parse_macro_arguments(u'argument="testing arg"', return_kwargs=True))
 
     def testKeywordMustBeNamed(self):
-        self.assertEquals(([u"blah", u'="testing arg"'], {}), parse_macro_arguments(u'blah ="testing arg"', return_kwargs=True))
+        self.assertEquals(([u"blah", u'="testing', u'arg"'], {}), parse_macro_arguments(u'blah ="testing arg"', return_kwargs=True))
 
 class TestHelperFunctions(TestCase):
     def test_strip_long_argument_chunk(self):
