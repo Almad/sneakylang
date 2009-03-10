@@ -154,6 +154,10 @@ class StrongVistingMacro(Macro):
         self.builder.append(TextNode(content=content), move_actual=False)
         self.builder.move_up()
 
+class PictureKeywordMacro(Macro):
+    name = 'picture'
+    help = '((picture http://pic.png title="My picture"))'
+
 class Strong(Parser):
     start = ['("){2}']
     macro = StrongMacro

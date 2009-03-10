@@ -40,21 +40,21 @@ class Macro(object):
     def __init__(self, register_map, builder, state=None):
         self.register_map = register_map
         self.arguments = []
+        self.keyword_arguments = {}
         self.builder = builder
         self.state = state
 
     def get_argument_list(self, argument_string):
-        """ Return list of arguments. Uses ARGUMENT_SEPARATOR as argument separator.
-        #TODO:
-        By default, closing text in double quotes (") causes treating it as single argument, even if it contains
-        argument separator. Nested quotes must not be escaped unless containting quote followed by argument
-        separator; escape char is backslash (\)
-        """
+        """ DEPRECATED: Use get_arguments instead. 
+        Return list of arguments. Uses ARGUMENT_SEPARATOR as argument separator."""
         return parse_macro_arguments(argument_string)
+
+    def get_arguments(self, argument_string):
+        return parse_macro_arguments(argument_string, return_kwargs=True)
 
     def parse_argument_string(self, argument_string):
         if argument_string is not None and argument_string not in (u'', ''):
-            self.arguments = self.get_argument_list(argument_string)
+            self.arguments, self.keyword_arguments = self.get_arguments(argument_string)
 
     @classmethod
     def argument_call(cls, argument_string, register, builder, state):

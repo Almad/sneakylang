@@ -60,11 +60,12 @@ LONG_ARGUMENT_BEGIN = u'"'
 LONG_ARGUMENT_END = u'"'
 
 
-def parse_macro_arguments(argument_string):
+def parse_macro_arguments(argument_string, return_kwargs=False):
     if len(argument_string) == 0:
         return None
 
     args = []
+    kwargs = {}
     buffer = u''
     in_long_argument = False
 
@@ -86,7 +87,10 @@ def parse_macro_arguments(argument_string):
     if len(buffer) > 0:
         args.append(buffer)
 
-    return args
+    if return_kwargs:
+        return args, kwargs
+    else:
+        return args
 
 def resolve_macro_name(stream):
     """ Resolve macro name. Return tuple(macro_name, string_with_macro_arguments) """
