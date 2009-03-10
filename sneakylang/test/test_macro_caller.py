@@ -7,11 +7,12 @@ import os
 import sys
 sys.path.insert(0, os.path.join(os.pardir, os.pardir))
 
-from unittest import main,TestCase
+from unittest import main, TestCase
 from module_test import *
 
 from sneakylang.macro_caller import *
 from sneakylang.treebuilder import TreeBuilder
+from sneakylang.register import Register
 
 #logging.basicConfig(level=logging.DEBUG)
 

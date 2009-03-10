@@ -3,16 +3,13 @@
 
 """ Test macro syntax, now being build-in into main parser """
 
-from os import pardir, tmpfile, remove
-import logging
-import re
-
-from unittest import main,TestCase
+from unittest import TestCase
 from module_test import *
 
 #logging.basicConfig(level=logging.DEBUG)
 
-from sneakylang import parse, RegisterMap, Document
+from sneakylang import parse, RegisterMap, Document, Register
+from sneakylang.expanders import TextNodeExpander
 
 class TestArgumentParsing(TestCase):
     def testParsingShortArgument(self):

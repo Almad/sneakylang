@@ -3,28 +3,10 @@
 
 """ Module for commons shared by tests """
 
-###
-# SneakyLang: Extensible WikiFramework
-#Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
-#
-#This library is free software; you can redistribute it and/or
-#modify it under the terms of the GNU Lesser General Public
-#License as published by the Free Software Foundation; either
-#version 2.1 of the License, or (at your option) any later version.
-#
-#This library is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#Lesser General Public License for more details.
-#
-#You should have received a copy of the GNU Lesser General Public
-#License along with this library; if not, write to the Free Software
-#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-###
-
 import re
 
-import os, sys
+import os
+import sys
 import logging
 logging = logging.getLogger('sneakylang')
 
@@ -35,11 +17,9 @@ if not WORKING_DIR in sys.path:
 
 from sneakylang.err import ParserRollback, MacroCallError
 from sneakylang.macro import Macro
-from sneakylang.macro_caller import parse_macro_arguments
 from sneakylang.node import Node, TextNode
 from sneakylang.parser import *
-from sneakylang.register import Register
-from sneakylang.expanders import Expander, expand, TextNodeExpander
+from sneakylang.expanders import Expander, expand
 
 class DummyMacro(Macro):
     name = 'dummy_macro'

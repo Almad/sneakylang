@@ -1,31 +1,11 @@
 # -*- coding: utf-8 -*-
 
-###
-# SneakyLang: Extensible WikiFramework
-#Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
-#
-#This library is free software; you can redistribute it and/or
-#modify it under the terms of the GNU Lesser General Public
-#License as published by the Free Software Foundation; either
-#version 2.1 of the License, or (at your option) any later version.
-#
-#This library is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#Lesser General Public License for more details.
-#
-#You should have received a copy of the GNU Lesser General Public
-#License along with this library; if not, write to the Free Software
-#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-###
-
-import logging
 from re import compile, UNICODE
 
 from expanders import Expander
 from macro_caller import get_macro_name, expand_macro_from_stream
 
-__all__ = ['ExpanderRegister', 'ParserRegister', 'Register', 'RegisterMap']
+__all__ = ('ExpanderRegister', 'ParserRegister', 'Register', 'RegisterMap')
 
 class RegisterMap(dict):
     """ Register map is dictionary holding macro : register_with_allowed_macros pair """

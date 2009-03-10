@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 """ Macro superclass and default Document and Macro classes """
 
-import re
 import logging
 logging = logging.getLogger('sneakylang')
 
 from err import *
-import node
 from macro_caller import parse_macro_arguments
 
 class Macro(object):
