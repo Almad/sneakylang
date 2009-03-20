@@ -29,7 +29,7 @@ from err import *
 
 __all__ = ['Expander', 'TextNodeExpander', 'expand']
 
-class Expander:
+class Expander(object):
     def expand(self, node, format, node_map):
         pass
 

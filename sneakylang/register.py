@@ -61,7 +61,7 @@ class RegisterMap(dict):
             for hook in self.hooks[macro.__class__]:
                 hook().post_macro(macro, builder)
 
-class ParserRegister:
+class ParserRegister(object):
     """ Parser register is holding parsers (aka 'alternative syntaxes') allowed to use for parsing.
     ParserRegister is also responsible for resolving those alternative syntaxes in stream """
 
@@ -123,7 +123,7 @@ class ParserRegister:
             return None
         return parser(stream, self, chunk, register)
 
-class Register:
+class Register(object):
     def __init__(self, macro_list=None, parsers=None):
         self.register_map = None
         self.macro_map = {}
@@ -203,7 +203,7 @@ class Register:
 
         return (None, None)
 
-class ExpanderRegister:
+class ExpanderRegister(object):
     def __init__(self, expander_map):
         self.expander_map = {}
         for k in expander_map:
