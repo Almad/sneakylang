@@ -9,7 +9,7 @@ from module_test import *
 # not run
 
 from sneakylang.node import TextNode
-from sneakylang.parser import *
+from sneakylang.parser import parse
 from sneakylang.register import Register, RegisterMap
 from sneakylang.expanders import expand, TextNodeExpander
 
