@@ -24,6 +24,11 @@ class TestArgumentParsing(TestCase):
         self.assertEquals(DummyNode, o.children[0].__class__)
         self.assertEquals(u"long argument", o.children[0].children[0].content)
 
+    def testParsingLongArgumentWithTrailingSlash(self):
+        s = '((onearg "long argument "))'
+        o = parse(s, RegisterMap({OneArgumentMacro : Register()}), document_root = True)
+        self.assertEquals(u"long argument ", o.children[0].children[0].content)
+
 class TestSimpleResolving(TestCase):
     def setUp(self):
         self.register_map = RegisterMap({
