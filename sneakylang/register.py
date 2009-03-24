@@ -1,31 +1,11 @@
 # -*- coding: utf-8 -*-
 
-###
-# SneakyLang: Extensible WikiFramework
-#Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
-#
-#This library is free software; you can redistribute it and/or
-#modify it under the terms of the GNU Lesser General Public
-#License as published by the Free Software Foundation; either
-#version 2.1 of the License, or (at your option) any later version.
-#
-#This library is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#Lesser General Public License for more details.
-#
-#You should have received a copy of the GNU Lesser General Public
-#License along with this library; if not, write to the Free Software
-#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-###
-
-import logging
 from re import compile, UNICODE
 
 from expanders import Expander
 from macro_caller import get_macro_name, expand_macro_from_stream
 
-__all__ = ['ExpanderRegister', 'ParserRegister', 'Register', 'RegisterMap']
+__all__ = ('ExpanderRegister', 'ParserRegister', 'Register', 'RegisterMap')
 
 class RegisterMap(dict):
     """ Register map is dictionary holding macro : register_with_allowed_macros pair """
@@ -204,12 +184,13 @@ class Register(object):
         parser = self.parser_register.resolve_parser(stream, self, whole_stream)
 
         if parser is not None:
-            # Macro resolved in alternate syntax, use parser to get pacro
+            # Macro resolved in alternate syntax, use parser to get macro
             macro, stream_new = parser.get_macro(builder, state)
             return (macro, stream_new)
 
         # resolve in macro syntax
         macro = self.resolve_parser_macro(stream)
+
         if macro is not None:
             return expand_macro_from_stream(stream, self, builder, state)
 

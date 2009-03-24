@@ -2,29 +2,8 @@
 
 """ SneakyLang: Extensible WikiFramework """
 
-__version__ = [0.3, "alpha", 4]
-__versionstr__ = "0.3_alpha4"
-
-###
-# SneakyLang: Extensible WikiFramework
-# Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
-# and contributors, for complete list see
-# http://projects.almad.net/czechtile/wiki/Contributors
-#
-#This library is free software; you can redistribute it and/or
-#modify it under the terms of the GNU Lesser General Public
-#License as published by the Free Software Foundation; either
-#version 2.1 of the License, or (at your option) any later version.
-#
-#This library is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#Lesser General Public License for more details.
-#
-#You should have received a copy of the GNU Lesser General Public
-#License along with this library; if not, write to the Free Software
-#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-###
+__version__ = [0, 3, 1, "dev"]
+__versionstr__ = "0.3.1-dev"
 
 from document import Document
 from expanders import expand
@@ -32,3 +11,8 @@ from macro import Macro
 from parser import parse
 from register import Register, RegisterMap
 from treebuilder import TreeBuilder
+
+__all__ = (
+    "Document", "Macro", "Register", "RegisterMap", "TreeBuilder",
+    "parse", "expand",
+)

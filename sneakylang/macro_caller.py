@@ -1,41 +1,24 @@
 # -*- coding: utf-8 -*-
 
-###
-# SneakyLang: Extensible WikiFramework
-# Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
-# and contributors, for complete list see
-# http://projects.almad.net/sneakylang/wiki/Contributors
-#
-#This library is free software; you can redistribute it and/or
-#modify it under the terms of the GNU Lesser General Public
-#License as published by the Free Software Foundation; either
-#version 2.1 of the License, or (at your option) any later version.
-#
-#This library is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#Lesser General Public License for more details.
-#
-#You should have received a copy of the GNU Lesser General Public
-#License along with this library; if not, write to the Free Software
-#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-###
-
-""" Set of funcitons and constants
+"""
+Set of functions and constants
 needed to perform proper call when calling macros with
 extensive syntax ((macro_name argument argument))
 
 All those functions are meant to be overwritten by
 implementation and should be as forward-compatible as possible.
- """
+"""
 
 
-import re
 import logging
 
 from err import *
 
 ARGUMENT_SEPARATOR = u' '
+
+# keyword argument is a name followed by
+# KEYWORD_ARGUMENT_SEPARATOR and thenby LONG_ARGUMENT
+KEYWORD_ARGUMENT_SEPARATOR=u'='
 
 # separator between macro name and it's argus
 # should be f.e. ( if macro syntax whould be #macro_name(arg,arg,arg)
@@ -59,34 +42,83 @@ ALLOW_MULTILINE_MACRO = False
 LONG_ARGUMENT_BEGIN = u'"'
 LONG_ARGUMENT_END = u'"'
 
-
-def parse_macro_arguments(argument_string):
+#TODO: Refactor as parser. See #31
+def parse_macro_arguments(argument_string, return_kwargs=False):
     if len(argument_string) == 0:
         return None
 
     args = []
+    kwargs = {}
     buffer = u''
+    kwarg_name_buffer = u''
     in_long_argument = False
+    current_kwarg_name = None
+    last_char = None
 
     for char in argument_string:
+        # first, append to buffers et al
         if in_long_argument and char != LONG_ARGUMENT_END:
             buffer = u''.join([buffer, char])
         elif in_long_argument and char == LONG_ARGUMENT_END:
             in_long_argument = False
-        else:
-            if char != ARGUMENT_SEPARATOR:
-                if char == LONG_ARGUMENT_BEGIN:
-                    in_long_argument = True
-                else:
-                    buffer = u''.join([buffer, char])
+        elif not in_long_argument and char == KEYWORD_ARGUMENT_SEPARATOR:
+            # we only accept kwargs if they're named
+            if kwarg_name_buffer:
+                # it sill only by used as dictionary name and that must not be u''
+                current_kwarg_name = kwarg_name_buffer.encode('utf-8')
+                kwarg_name_buffer = u''
+                # and kwarg must be removed from stream
+                buffer = buffer[:-len(current_kwarg_name)]
             else:
-                if len(buffer) > 0:
+                buffer = u''.join([buffer, char])
+        elif char != ARGUMENT_SEPARATOR:
+            if char == LONG_ARGUMENT_BEGIN and (
+                # we're at beginning of the string
+                last_char is None
+                or
+                # unnamed long argument
+                last_char == ARGUMENT_SEPARATOR
+                or
+                # keyword argument (must be named)
+                (last_char == KEYWORD_ARGUMENT_SEPARATOR and current_kwarg_name)
+            ):
+                in_long_argument = True
+            else:
+                # could be both text and kwarg name
+                buffer = u''.join([buffer, char])
+                kwarg_name_buffer = u''.join([kwarg_name_buffer, char])
+        elif char == ARGUMENT_SEPARATOR:
+            if len(buffer) > 0:
+                if current_kwarg_name:
+                    if kwargs.has_key(current_kwarg_name):
+                        logging.debug(u"Macro argument already contains keyword argument %s (with value %s). Setting to %s" % (current_kwarg_name, kwargs[current_kwarg_name], buffer))
+                    kwargs[current_kwarg_name] = buffer
+                    current_kwarg_name = None
+                else:
                     args.append(buffer)
-                buffer = u''
-    if len(buffer) > 0:
-        args.append(buffer)
+            buffer = u''
+            kwarg_name_buffer = u''
+        else:
+            raise NotImplementedError("char != ARGUMENT_SEPARATOR && char == ARGUMENT_SEPARATOR WTF?!?")
 
-    return args
+        # then, cache last char
+        last_char = char
+
+    if len(buffer) > 0:
+        # FIXME: This is cut& pasted from char == ARGUMENT_SEPARATOR
+        if len(buffer) > 0:
+            if current_kwarg_name:
+                if kwargs.has_key(current_kwarg_name):
+                    logging.debug(u"Macro argument already contains keyword argument %s (with value %s). Setting to %s" % (current_kwarg_name, kwargs[current_kwarg_name], buffer))
+                kwargs[current_kwarg_name] = buffer
+                current_kwarg_name = None
+            else:
+                args.append(buffer)
+
+    if return_kwargs:
+        return args, kwargs
+    else:
+        return args
 
 def resolve_macro_name(stream):
     """ Resolve macro name. Return tuple(macro_name, string_with_macro_arguments) """

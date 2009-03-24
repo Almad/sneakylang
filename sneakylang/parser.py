@@ -1,37 +1,15 @@
 # -*- coding: utf-8 -*-
 
-""" Parser transforming input stream to DOM
 """
-
-###
-# SneakyLang: Extensible WikiFramework
-#Copyright (C) 2007 Lukas "Almad" Linhart http://www.almad.net/
-# and contributors, for complete list see
-# http://projects.almad.net/sneakylang/wiki/Contributors
-#
-#This library is free software; you can redistribute it and/or
-#modify it under the terms of the GNU Lesser General Public
-#License as published by the Free Software Foundation; either
-#version 2.1 of the License, or (at your option) any later version.
-#
-#This library is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#Lesser General Public License for more details.
-#
-#You should have received a copy of the GNU Lesser General Public
-#License along with this library; if not, write to the Free Software
-#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-###
+Parser transforming input stream to DOM
+"""
 
 import logging
 
 from err import ParserRollback, MacroCallError
 
-import macro
 from node import TextNode
 from register import Register
-from macro_caller import expand_macro_from_stream
 from treebuilder import TreeBuilder
 
 #FIXME
@@ -155,7 +133,7 @@ def parse(stream, register_map, register=None, parsers=None, state=None, builder
                 if opened_text_node is not None and opened_text_node.content.endswith(NEGATION_CHAR):
                     # don't forget to eat negation char!
                     opened_text_node.content = opened_text_node.content[:-1]
-                    raise ParserRollback, "Negation resolved"
+                    raise ParserRollback("Negation resolved")
 
                 logging.debug('Resolved macro %s' % macro)
                 stream_new = register_map.pre_hooks(stream_new, macro, builder)

@@ -3,49 +3,43 @@
 
 """ Test macro caller functions """
 
-###
-# SneakyLang: Extensible WikiFramework
-#Copyright (C) 2006 Lukas "Almad" Linhart http://www.almad.net/
-#
-#This library is free software; you can redistribute it and/or
-#modify it under the terms of the GNU Lesser General Public
-#License as published by the Free Software Foundation; either
-#version 2.1 of the License, or (at your option) any later version.
-#
-#This library is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#Lesser General Public License for more details.
-#
-#You should have received a copy of the GNU Lesser General Public
-#License along with this library; if not, write to the Free Software
-#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-###
-
 import os
 import sys
 sys.path.insert(0, os.path.join(os.pardir, os.pardir))
-import logging
-import re
 
-from unittest import main,TestCase
+from unittest import main, TestCase
 from module_test import *
 
 from sneakylang.macro_caller import *
 from sneakylang.treebuilder import TreeBuilder
+from sneakylang.register import Register
 
 #logging.basicConfig(level=logging.DEBUG)
 
 class TestArgumentParsing(TestCase):
-    def testParsingShortArgument(self):
+    def testEmptyArgument(self):
         self.assertEquals(None, parse_macro_arguments(u""))
+
+    def testSingleWord(self):
         self.assertEquals([u"test"], parse_macro_arguments(u"test"))
+
+    def testWhitespaceSeparatedWords(self):
         self.assertEquals([u"testing", u"args"], parse_macro_arguments(u"testing args"))
 
-    def testParsingLongArgument(self):
+    def testLongArgumentWithinQuotation(self):
         self.assertEquals([u"testing arg"], parse_macro_arguments(u'"testing arg"'))
+
+    def testLongArgumentWithinQuotationWithSeparateWord(self):
         self.assertEquals([u"testing arg", u"argument"], parse_macro_arguments(u'"testing arg" argument'))
+
+    def testCombinationOfQuotedAndSeparatedWords(self):
         self.assertEquals([u"arg", u"harg", u"testing arg", u"argument"], parse_macro_arguments(u'arg "harg" "testing arg" argument'))
+
+    def testKeywordArgument(self):
+        self.assertEquals(([], {'argument' : u'testing arg'}), parse_macro_arguments(u'argument="testing arg"', return_kwargs=True))
+
+    def testKeywordMustBeNamed(self):
+        self.assertEquals(([u"blah", u'="testing', u'arg"'], {}), parse_macro_arguments(u'blah ="testing arg"', return_kwargs=True))
 
 class TestHelperFunctions(TestCase):
     def test_strip_long_argument_chunk(self):
