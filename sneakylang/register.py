@@ -92,9 +92,20 @@ class ParserRegister(object):
         most = None
         length = 0
         for m in matching:
-            if len(m.string[m.start():m.end()]) > length:
+            mlen = len(m.string[m.start():m.end()])
+
+            if mlen > length:
                 most = m
                 length = len(m.string[m.start():m.end()])
+            elif mlen == length:
+                logging.debug('Two or more parsers are matching, ' \
+                    'performing the priority check')
+                m_parser = self.parser_start[m.re.pattern[1:]][1]
+                most_parser = self.parser_start[most.re.pattern[1:]][1]
+                if getattr(m_parser, 'priority', 0) > \
+                    getattr(most_parser, 'priority', 0):
+                    most = m
+
         if most is None:
             return (None, None)
         return (self.parser_start[most.re.pattern[1:]][1], most.string[most.start():most.end()])
@@ -110,7 +121,7 @@ class ParserRegister(object):
 	for start in self.parser_start:
             compiled, parser = self.parser_start[start]
             if start.find('^') != -1:
-		if compiled.match(whole_stream):
+		if compiled.match(whole_stream) and stream == whole_stream:
                     matching.append(compiled.match(whole_stream))
             else:
                 if compiled.match(stream):
@@ -191,6 +202,7 @@ class Register(object):
             whole_stream = stream
 
         parser = self.parser_register.resolve_parser(stream, self, whole_stream)
+
         if parser is not None:
             # Macro resolved in alternate syntax, use parser to get pacro
             macro, stream_new = parser.get_macro(builder, state)

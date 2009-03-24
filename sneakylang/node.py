@@ -46,7 +46,7 @@ class Node(object):
 
         if isinstance(node, TextNode):
             if self.actual_text_content is not None:
-                raise ValueError, 'Adding a text node, but one is alread present'
+                raise ValueError('Adding a text node, but one is already present')
             self.actual_text_content = node
         else:
             self.actual_text_content = None
@@ -65,7 +65,7 @@ class Node(object):
         """ Insert child on given position """
         if isinstance(node, TextNode):
             if self.actual_text_content is not None:
-                raise ValueError, 'Adding a text node, but one is alread present'
+                raise ValueError('Adding a text node, but one is already present')
             self.actual_text_content = node
         else:
             self.actual_text_content = None
