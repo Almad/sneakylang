@@ -78,8 +78,8 @@ class ParserRegister(object):
                 most = m
                 length = len(m.string[m.start():m.end()])
             elif mlen == length:
-                logging.debug('Two or more parsers are matching, ' \
-                    'performing the priority check')
+                #logging.debug('Two or more parsers are matching, ' \
+                    #'performing the priority check')
                 m_parser = self.parser_start[m.re.pattern[1:]][1]
                 most_parser = self.parser_start[most.re.pattern[1:]][1]
                 if getattr(m_parser, 'priority', 0) > \
