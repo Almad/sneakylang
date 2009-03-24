@@ -7,7 +7,7 @@ def root_required(fn):
     """
     def _innerWrapper(self, *args, **kwargs):
         if self.root is None:
-            raise ValueError, "For this operation, root for treebuilder must be set"
+            raise ValueError("For this operation, root for treebuilder must be set")
         return fn(self, *args, **kwargs)
     return _innerWrapper
 
@@ -39,7 +39,7 @@ class TreeBuilder(object):
     @root_required
     def move_up(self):
         if self.actual_node.parent is None:
-            raise ValueError, 'Cannot move up as there is no parent of current node'
+            raise ValueError('Cannot move up as there is no parent of current node')
         else:
             self._actual_node = self.actual_node.parent
 
@@ -85,6 +85,6 @@ class TreeBuilder(object):
         if self.root == node or (self.root is not None and self.get_node_from_children(node, self.root.children) == node):
             self._actual_node = node
         else:
-            raise ValueError, 'Node %s not found in tree' % node
+            raise ValueError('Node %s not found in tree' % node)
 
     actual_node = property(fget=get_actual_node)
