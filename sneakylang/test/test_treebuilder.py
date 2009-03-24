@@ -176,12 +176,34 @@ class TestNodeSearch(TestCase):
         self.root = DummyNode()
         self.builder.set_root(self.root)
     
-#    def testSingleChildSearch(self):
-#        n1 = DummyNode()
-#        self.root.add_child(n1)
-#        
-#        self.assertEquals(n1, self.builder.get_node_from_children(n1))
+    def testSingleChildSearch(self):
+        n1 = DummyNode()
+        self.root.add_child(n1)
         
+        self.assertEquals(n1, self.builder.get_node_from_children(n1, self.root.children))
+        
+    def testMultipleChildSearch(self):
+        n1 = DummyNode()
+        n2 = DummyNode()
+        self.root.add_child(n1)
+        self.root.add_child(n2)
+        
+        self.assertEquals(n2, self.builder.get_node_from_children(n2, self.root.children))
+
+    def testMultipleNestedChildSearch(self):
+        n1 = DummyNode()
+        n2 = DummyNode()
+        self.root.add_child(n1)
+        self.root.add_child(n2)
+        
+        n1_1 = DummyNode()
+        n2_1 = DummyNode()
+        
+        n1.add_child(n1_1)
+        n2.add_child(n2_1)
+        
+        self.assertEquals(n2_1, self.builder.get_node_from_children(n2_1, self.root.children))
+
 
 class TestBuilderCalledByMacro(TestCase):
     def setUp(self):

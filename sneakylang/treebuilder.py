@@ -74,16 +74,25 @@ class TreeBuilder(object):
 
     def get_node_from_children(self, node, node_list):
         if node in node_list:
-            return node
+            return node_list[node_list.index(node)]
         else:
             for n in node_list:
-                return self.get_node_from_children(node, n.children)
+                found_node = self.get_node_from_children(node, n.children)
+                if found_node:
+                    return found_node
 
     def set_actual_node(self, node):
         """ Traverse through node tree, find given node instance and set it as active node.
         If node is not found, raise ValueError """
-        if self.root is node or (self.root is not None and self.get_node_from_children(node, self.root.children) is node):
+        if self.root is node:
             self._actual_node = node
+        elif self.root is not None:
+            returned_node = self.get_node_from_children(node, self.root.children)
+            if node is returned_node:
+                self._actual_node = node
+            else:
+                raise ValueError(u"Bad node %s returned" % returned_node)
+            
         else:
             raise ValueError('Node %s not found in tree' % node)
 
