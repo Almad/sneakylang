@@ -5,15 +5,8 @@
 
 import re
 
-import os
-import sys
 import logging
 logging = logging.getLogger('sneakylang')
-
-WORKING_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir))
-
-if not WORKING_DIR in sys.path:
-    sys.path.insert(0, WORKING_DIR)
 
 from sneakylang.err import ParserRollback, MacroCallError
 from sneakylang.macro import Macro

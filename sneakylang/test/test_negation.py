@@ -4,16 +4,14 @@
 """ Test Negation
 """
 
-from os import pardir
-from os.path import join
-import sys
-sys.path.insert(0, join(pardir, pardir))
+# is not run
 
 from unittest import main, TestCase
 
 from module_test import *
 
-from sneakylang import parse, RegisterMap
+from sneakylang import parse, RegisterMap, Register
+from sneakylang.expanders import TextNodeExpander
 
 #logging.basicConfig(level=logging.DEBUG)
 

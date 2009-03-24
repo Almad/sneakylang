@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" Test context-sensitive Parser registry.
-"""
+""" Test context-sensitive Parser registry. """
 
-from os import pardir
-from os.path import join
-import sys
-sys.path.insert(0, join(pardir, pardir))
+# not run
 
-from unittest import main,TestCase
+from unittest import TestCase
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -30,5 +26,3 @@ class TestStateArgument(TestCase):
         tree = parse(s, RegisterMap({StrongVistingMacro : Register()}), state=state, document_root=True)
         self.assertEquals(state.visited, 1)
 
-if __name__ == "__main__":
-    main()

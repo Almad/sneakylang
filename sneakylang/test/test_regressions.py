@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from os import pardir
-from os.path import join
-import sys
-sys.path.insert(0, join(pardir, pardir))
-
-from unittest import main,TestCase
+from unittest import TestCase
 from module_test import *
 
 #logging.basicConfig(level=logging.DEBUG)
+
+# not run
 
 from sneakylang.node import TextNode
 from sneakylang.parser import *
@@ -83,5 +80,3 @@ class TestSimpleWikiExpand(TestCase):
         p.children.append(tn)
         self.assertEquals(expand(p, 'docbook5', node_map), '<para>&lt;b&gt;not bold&lt;/b&gt;</para>')
 
-if __name__ == "__main__":
-    main()

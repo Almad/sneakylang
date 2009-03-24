@@ -3,11 +3,7 @@
 
 """ Test macro hooks"""
 
-
-from os import pardir
-from os.path import join
-import sys
-sys.path.insert(0, join(pardir, pardir))
+# are not run
 
 from unittest import main, TestCase
 
@@ -43,5 +39,3 @@ class TestMacroHook(TestCase):
         self.assertEquals(StrongNode, o.children[1].__class__)
         self.assertEquals("argument replaced by hook", o.children[1].children[0].content)
 
-if __name__ == "__main__":
-    main()

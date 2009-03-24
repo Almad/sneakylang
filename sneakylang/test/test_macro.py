@@ -3,11 +3,6 @@
 
 """ Test Macros and related things"""
 
-from os import pardir
-from os.path import join
-import sys
-sys.path.insert(0, join(pardir, pardir))
-
 from unittest import main,TestCase
 
 from module_test import *
@@ -29,5 +24,3 @@ class TestMacro(TestCase):
         macro.parse_argument_string(u"arg arg2")
         self.assertEquals(macro.arguments, [u'arg', u'arg2'])
 
-if __name__ == "__main__":
-    main()

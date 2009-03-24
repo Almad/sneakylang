@@ -4,12 +4,7 @@
 """ Test context-sensitive Parser registry.
 """
 
-from os import pardir
-from os.path import join
-import sys
-sys.path.insert(0, join(pardir, pardir))
-
-from unittest import main,TestCase
+from unittest import TestCase
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -147,6 +142,3 @@ class TestRegisterMap(TestCase):
         map = RegisterMap({DummyParser : Register([])})
         self.assertEquals(map[DummyParser].register_map, map)
         self.assertEquals(repr(map[DummyParser].register_map), repr(map))
-
-if __name__ == "__main__":
-    main()

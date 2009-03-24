@@ -1,13 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" Test Parsers
-"""
+""" Test Parsers """
 
-from os import pardir
-from os.path import join
-import sys
-sys.path.insert(0, join(pardir, pardir))
+# is not run
 
 from unittest import main,TestCase
 
@@ -42,5 +38,3 @@ class TestParserCapabilities(TestCase):
         self.assertEquals(1, len(res.children))
         self.assertEquals(txt, res.children[0].content)
 
-if __name__ == "__main__":
-    main()

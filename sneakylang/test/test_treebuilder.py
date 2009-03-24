@@ -6,8 +6,6 @@
 
 from os import pardir
 from os.path import join
-import sys
-sys.path.insert(0, join(pardir, pardir))
 
 from unittest import main, TestCase
 
@@ -24,6 +22,7 @@ class DummyClass:
 
 class TestSupportedMethods(TestCase):
     def setUp(self):
+        super(TestSupportedMethods, self).setUp()
         self.builder = TreeBuilder()
 
     def testBuildingForbiddenWithoutRoot(self):
@@ -121,6 +120,15 @@ class TestSupportedMethods(TestCase):
         self.assertEquals(n4, self.builder.actual_node)
 
         self.assertRaises(ValueError, lambda:self.builder.set_actual_node(DummyNode()))
+        
+    def testSettingActualNodeToChild(self):
+        n1 = DummyNode()
+        n2 = DummyNode()
+        n3 = DummyNode()
+        n1.add_child(n2)
+        n1.add_child(n3)
+        self.builder.set_root(n1)
+        self.builder.set_actual_node(n3)
 
     def testListAdding(self):
         n1 = DummyNode()
@@ -161,6 +169,19 @@ class TestSupportedMethods(TestCase):
         self.builder.replace(n4)
         self.assertEquals(n4, self.builder.root)
 
+class TestNodeSearch(TestCase):
+    def setUp(self):
+        super(TestNodeSearch, self).setUp()
+        self.builder = TreeBuilder()
+        self.root = DummyNode()
+        self.builder.set_root(self.root)
+    
+#    def testSingleChildSearch(self):
+#        n1 = DummyNode()
+#        self.root.add_child(n1)
+#        
+#        self.assertEquals(n1, self.builder.get_node_from_children(n1))
+        
 
 class TestBuilderCalledByMacro(TestCase):
     def setUp(self):
@@ -172,5 +193,3 @@ class TestBuilderCalledByMacro(TestCase):
         tree = parse(s, RegisterMap({StrongVistingMacro : Register()}), state=state, builder=self.builder, document_root=True)
         self.assertEquals(DocumentNode, tree.__class__)
 
-if __name__ == "__main__":
-    main()
