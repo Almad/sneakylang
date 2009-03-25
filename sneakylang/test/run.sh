@@ -1,2 +1,6 @@
 #!/bin/sh
-for i in `ls test*py`; do nosetests $i; done;
+
+cmd="nosetests `pwd`/test_*.py $@"
+echo "*** Running: $cmd"
+echo
+$cmd
