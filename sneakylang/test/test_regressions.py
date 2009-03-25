@@ -79,4 +79,3 @@ class TestSimpleWikiExpand(TestCase):
         tn.content = '<b>not bold</b>'
         p.children.append(tn)
         self.assertEquals(expand(p, 'docbook5', node_map), '<para>&lt;b&gt;not bold&lt;/b&gt;</para>')
-

@@ -105,7 +105,7 @@ def parse_macro_arguments(argument_string, return_kwargs=False):
         last_char = char
 
     if len(buffer) > 0:
-        # FIXME: This is cut& pasted from char == ARGUMENT_SEPARATOR
+        # FIXME: This is cut & pasted from char == ARGUMENT_SEPARATOR
         if len(buffer) > 0:
             if current_kwarg_name:
                 if kwargs.has_key(current_kwarg_name):

@@ -77,11 +77,9 @@ class ParagraphNode(Node): pass
 class ParagraphMacro(Macro):
     name = 'odstavec'
     help = '((odstavec text odstavce))'
-    parsersAllowed = ['Strong']
 
-    @classmethod
-    def get_argument_list(self, argument_string):
-        return [argument_string]
+    def parse_argument_string(self, argument_string):
+        self.arguments = [argument_string]
 
     def expand_to_nodes(self, *args):
         if len(args) < 1:
@@ -151,7 +149,6 @@ class Strong(Parser):
         if not end:
             logging.debug('End %s of macro %s not found, rolling back' % (self.__class__.end, self))
             raise ParserRollback
-        self.stream = s
         self.argument_string = self.stream[0:end.start()]
         self.stream = self.stream[end.end():]
 

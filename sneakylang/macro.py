@@ -10,8 +10,7 @@ from macro_caller import parse_macro_arguments
 class Macro(object):
     """ All macros should derive from this class """
     name = None # define macro name
-    help = """<this macro haven't specified usage example>"""
-    parsers_allowed = None
+    help = "<this macro doesn't have usage example>"
 
     def __init__(self, register_map, builder, state=None):
         object.__init__(self)
@@ -22,7 +21,7 @@ class Macro(object):
         self.state = state
 
     def get_argument_list(self, argument_string):
-        """ DEPRECATED: Use get_arguments instead. 
+        """ DEPRECATED: Use get_arguments instead.
         Return list of arguments. Uses ARGUMENT_SEPARATOR as argument separator."""
         return parse_macro_arguments(argument_string)
 
