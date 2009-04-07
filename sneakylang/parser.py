@@ -142,7 +142,7 @@ def parse(stream, register_map, register=None, parsers=None, state=None, builder
                 stream = stream_new
                 opened_text_node = None
             else:
-                logging.debug('Macro not resolved, add text node')
+                #logging.debug('Macro not resolved, add text node')
                 node, stream = _get_text_node(stream, register, register_map, builder, state, opened_text_node=opened_text_node, whole_stream=whole_stream)
                 if opened_text_node is None:
                     builder.append(node, move_actual=False)
