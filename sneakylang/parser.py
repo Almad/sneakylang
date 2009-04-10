@@ -98,8 +98,10 @@ def parse(stream, register_map, register=None, parsers=None, state=None, builder
     if builder is None:
         builder = TreeBuilder()
 
+    # prepare the stream for parsing
     if isinstance(stream, str):
         stream = stream.decode('utf-8')
+    stream = stream.replace('\r\n', '\n').replace('\r', '\n')  # normalize newlines
 
     if builder.root is None:
         if document_root is True:
