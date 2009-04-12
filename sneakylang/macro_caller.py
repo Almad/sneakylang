@@ -189,7 +189,7 @@ def get_content(stream):
     """ Return content of macro or None if proper end not resolved """
     if not ALLOW_MULTILINE_MACRO:
         #FIXME: (?) allow regexp macro_end...?
-        this_line = stream.split('\n')[0]
+        this_line = stream.splitlines()[0]
         if MACRO_END not in this_line:
             return None
 
