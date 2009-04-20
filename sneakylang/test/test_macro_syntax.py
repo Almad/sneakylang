@@ -79,10 +79,11 @@ class TestNestedMacroSyntax(TestCase):
         self.assertEquals(o.children[0].children[1].content, ' text odstavce')
 
     def testProperNestedQuoted(self):
-        s = '((odstavec "silne silny)) text odstavce"))'
+        # we cannot use odstavec as macro, because it is not parsing it's args
+        s = '((silne "silne silny)) text odstavce"))'
         o = parse(s, self.register_map, document_root=True)
         self.assertEquals(len(o.children), 1)
-        self.assertEquals(o.children[0].__class__, ParagraphNode)
+        self.assertEquals(o.children[0].__class__, StrongNode)
         self.assertEquals(o.children[0].children[0].__class__, TextNode)
         self.assertEquals(o.children[0].children[0].content, 'silne silny)) text odstavce')
 
