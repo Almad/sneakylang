@@ -78,13 +78,15 @@ class ParagraphMacro(Macro):
     name = 'odstavec'
     help = '((odstavec text odstavce))'
 
-    def parse_argument_string(self, argument_string):
-        self.arguments = [argument_string]
+    @classmethod
+    def get_arguments(self, argument_string):
+        return [argument_string], {}
 
     def expand_to_nodes(self, *args):
         if len(args) < 1:
-            raise MacroCallError, "Paragraph must have some content"
+            raise MacroCallError("Paragraph must have some content")
         content = ''.join([word+' ' for word in args])[:-1]
+        print content
         self.builder.append(ParagraphNode())
         parse(content, self.register_map, self.register, builder=self.builder)
         self.builder.move_up()
@@ -94,6 +96,9 @@ class Paragraph(Parser):
     macro = ParagraphMacro
     end = '(\n){2}'
 
+    def get_arguments(self, argument_string):
+        return parse_macro_arguments(argument_string, return_kwargs=True)
+
     def resolve_argument_string(self):
         end = re.search(self.__class__.end, self.stream)
         if end:
@@ -102,6 +107,7 @@ class Paragraph(Parser):
             self.stream = self.stream[end.end():]
         else:
             self.argument_string = self.stream
+            print self.argument_string
             self.stream = ''
 
 class StrongNode(Node): pass
@@ -141,16 +147,14 @@ class PictureKeywordMacro(Macro):
 class Strong(Parser):
     start = ['("){2}']
     macro = StrongMacro
-    end = '("){2}'
 
     def resolve_argument_string(self):
-        s = self.stream
-        end = re.search(self.__class__.end, s)
-        if not end:
-            logging.debug('End %s of macro %s not found, rolling back' % (self.__class__.end, self))
-            raise ParserRollback
-        self.argument_string = self.stream[0:end.start()]
-        self.stream = self.stream[end.end():]
+        endMatch = re.search(re.escape(self.chunk), self.stream)
+        if not endMatch:
+            raise ParserRollback()
+        self.argument_string = self.stream[0:endMatch.start()]
+        self.chunk_end = self.stream[endMatch.start():endMatch.end()]
+        self.stream = self.stream[endMatch.end():]
 
 class ParagraphDocbookExpand(Expander):
     def expand(self, node, format, node_map):

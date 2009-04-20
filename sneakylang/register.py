@@ -94,14 +94,14 @@ class ParserRegister(object):
         """ Resolve parser stream.
         Return properly initialized parser or None
         """
-	if whole_stream is None:
-            whole_stream = stream
-
-	matching = []
-	for start in self.parser_start:
+        if whole_stream is None:
+                whole_stream = stream
+        matching = []
+        
+        for start in self.parser_start:
             compiled, parser = self.parser_start[start]
             if start.find('^') != -1:
-		if compiled.match(whole_stream) and stream == whole_stream:
+                if compiled.match(whole_stream) and stream == whole_stream:
                     matching.append(compiled.match(whole_stream))
             else:
                 if compiled.match(stream):
@@ -112,6 +112,7 @@ class ParserRegister(object):
         parser, chunk = self._most_matching(matching)
         if parser is None or chunk is None:
             return None
+            
         return parser(stream, self, chunk, register)
 
 class Register(object):
