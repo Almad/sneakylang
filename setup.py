@@ -16,15 +16,21 @@ from setuptools import setup
 
 from distutils.command.install import INSTALL_SCHEMES
 import sys
-import sneakylang
 
 required_python_version = '2.4'
 
 ###############################################################################
 # arguments for the setup command
 ###############################################################################
+
+
+VERSION = (0, 3, 1)
+
+__version__ = VERSION
+__versionstr__ = '.'.join(map(str, VERSION))
+
 name = "sneakylang"
-version = sneakylang.__versionstr__
+version = __versionstr__
 desc = "Extensible framework for easy creation of extensible WikiLanguages"
 long_desc = """"""
 classifiers=[

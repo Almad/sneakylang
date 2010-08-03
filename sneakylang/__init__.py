@@ -2,10 +2,13 @@
 
 """ SneakyLang: Extensible WikiFramework """
 
-__version__ = [0, 3, 1, "dev"]
-__versionstr__ = "0.3.1-dev"
+VERSION = (0, 3, 1)
 
-from document import Document
+__version__ = VERSION
+__versionstr__ = '.'.join(map(str, VERSION))
+
+
+
 from expanders import expand
 from macro import Macro
 from parser import parse
