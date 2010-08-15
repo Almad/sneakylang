@@ -8,7 +8,7 @@ __version__ = VERSION
 __versionstr__ = '.'.join(map(str, VERSION))
 
 
-
+from document import Document
 from expanders import expand
 from macro import Macro
 from parser import parse
